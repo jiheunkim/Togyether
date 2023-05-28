@@ -16,4 +16,7 @@
     <style name="BottomNavigationView">
         <item name="fontFamily">@font/notosans_regular</item>
     </style>
+    <style name="PigmoneyMenu">
+        <item name="fontFamily">@font/notosans_semibold</item>
+    </style>
 </resources>

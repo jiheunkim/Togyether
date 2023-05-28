@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background for selected menu item -->
+    <item android:state_checked="true">
+        <inset android:drawable="@drawable/btn_circle_blue"
+            android:insetLeft="3dp" android:insetTop="3dp" android:insetRight="3dp" android:insetBottom="3dp"/>
+    </item>
+    <!-- Background for non-selected menu items -->
+    <item android:drawable="@android:color/transparent" />
+</selector>

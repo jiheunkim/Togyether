@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/first"
+        app:showAsAction="withText"
+        android:enabled="true"
+        android:title="달력"/>
+    <item android:id="@+id/second"
+        app:showAsAction="withText"
+        android:enabled="true"
+        android:title="내역" />
+    <item android:id="@+id/third"
+        app:showAsAction="withText"
+        android:enabled="true"
+        android:title="예산" />
+</menu>
