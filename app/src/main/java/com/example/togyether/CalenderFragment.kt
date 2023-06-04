@@ -1,10 +1,17 @@
 package com.example.togyether
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.togyether.databinding.FragmentCalenderBinding
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +28,9 @@ class CalenderFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    lateinit var selectedDate: LocalDate
+
+    lateinit var binding: FragmentCalenderBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -33,8 +43,70 @@ class CalenderFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calender, container, false)
+        binding = FragmentCalenderBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        selectedDate = LocalDate.now() // 현재 날짜
+        setMonthView() // 월 이동
+
+        binding.lastMonth.setOnClickListener {
+            // 이전 달 버튼 이벤트
+            selectedDate = selectedDate.minusMonths(1)
+            setMonthView()
+        }
+
+        binding.nextMonth.setOnClickListener {
+            // 다음 달 버튼 이벤트
+            selectedDate = selectedDate.plusMonths(1)
+            setMonthView()
+        }
+    }
+
+    private fun setMonthView() {
+        binding.nowMonth.text = monthYearFromDate(selectedDate)
+
+        // 날짜 생성해서 리스트 담기
+        val dayList = dayInMonthArray(selectedDate)
+        val adapter = CalendarAdapter(dayList)
+        var manager: RecyclerView.LayoutManager = GridLayoutManager(requireContext(), 7)
+
+        binding.calendar.layoutManager = manager
+        binding.calendar.adapter = adapter
+    }
+
+    private fun monthYearFromDate(date: LocalDate): String {
+        var formatter = DateTimeFormatter.ofPattern("MM월 yyyy")
+
+        return date.format(formatter)
+    }
+
+    private fun dayInMonthArray(date: LocalDate): ArrayList<LocalDate?> {
+        // 날짜 생성
+        var dayList = ArrayList<LocalDate?>()
+        var yearMonth = YearMonth.from(date)
+
+        // 해당 월 마지막 날짜 가져오기(28, 30, 31일)
+        var lastDay = yearMonth.lengthOfMonth()
+
+        // 해당 월 첫 번째 날짜 가져오기(예: 5월 1일)
+        var firstDay = selectedDate.withDayOfMonth(1)
+
+        // 첫 번째 날 요일 가져오기(월:1, 일:7)
+        var dayOfWeek = firstDay.dayOfWeek.value
+
+        for(i in 1..41) {
+            if(i <= dayOfWeek || i > (lastDay + dayOfWeek)) {
+                dayList.add(null)
+            }else {
+                dayList.add(LocalDate.of(selectedDate.year, selectedDate.monthValue, i - dayOfWeek))
+            }
+        }
+
+        return dayList
     }
 
     companion object {

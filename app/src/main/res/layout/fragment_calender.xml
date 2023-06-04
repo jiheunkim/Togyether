@@ -17,9 +17,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="10dp"
         android:layout_marginStart="40dp"
-        android:layout_marginBottom="5dp"
         android:text="나의 순자산"
         android:textColor="@color/black"
         android:textSize="16dp"
@@ -61,10 +60,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="5dp"
         android:layout_marginLeft="35dp"
         android:layout_marginRight="30dp"
-        android:layout_marginBottom="5dp"
         android:padding="5dp"
         android:orientation="horizontal">
 
@@ -80,16 +78,7 @@
             android:id="@+id/now_month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5"
-            android:textAlignment="textStart"
-            android:textColor="@color/black"
-            android:textSize="20dp"
-            android:fontFamily="@font/notosans_semibold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="월"
+            android:text="5월 2023"
             android:textAlignment="textStart"
             android:textColor="@color/black"
             android:textSize="20dp"
@@ -125,7 +114,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
         android:layout_marginBottom="5dp"
@@ -240,8 +228,89 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="10dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="5dp"
         android:src="@drawable/rec_gray" />
+
+    <!--요일-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="10dp"
+        android:background="#FFFFFF"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="일"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="월"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="화"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="수"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="목"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="금"
+            android:textColor="@color/black"
+            android:textSize="11sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="토"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="14dp"
+        android:src="@drawable/rec_skyblue" />
+
+    <!--달력뷰-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/calendar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
 </LinearLayout>
