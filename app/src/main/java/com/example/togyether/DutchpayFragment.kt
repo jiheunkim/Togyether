@@ -1,59 +1,70 @@
 package com.example.togyether
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import com.example.togyether.databinding.FragmentDutchpayBinding
+import com.google.android.material.tabs.TabLayoutMediator
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [DutchpayFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class DutchpayFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    lateinit var binding: FragmentDutchpayBinding
+    lateinit var dActivity: MainActivity
+    val fragmentList = ArrayList<Fragment>()
+    lateinit var adapter: DutchpayPageAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        dActivity = context as MainActivity
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_dutchpay, container, false)
+        binding = FragmentDutchpayBinding.inflate(layoutInflater, container, false)
+        val view = binding.root
+        with(view) {
+            adapter = DutchpayPageAdapter(dActivity)
+            binding.viewPager.adapter = adapter
+            TabLayoutMediator(binding.tabLayout, binding.viewPager){
+                    tab , pos ->
+                tab.text = "GROUP${pos + 1}"
+            }.attach()
+        }
+
+        // arguments가 null이면 블록 내부로 진입 X
+        arguments?.let {
+            val groupName = it.getString("group_name")!!
+            adapter.addFragment(groupName)
+            val groupMembers = ArrayList<String>()
+            for(i in 1 .. it.size()){
+                val key = "member${i}"
+                it.getString(key)?.let { member -> groupMembers.add(member) }
+                Log.d("member", groupMembers[i-1])
+            }
+            adapter.notifyDataSetChanged()
+        }
+
+        binding.addBtn.setOnClickListener(){
+            // DutchpayFragment -> AddGroupFragment
+            parentFragmentManager.beginTransaction()
+                .hide(this)
+                .add(R.id.root_fragment, AddGroupFragment())
+                .addToBackStack(null)
+                .commit()
+
+
+            adapter.addFragment("1111")
+            adapter.notifyDataSetChanged()
+        }
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment DutchpayFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            DutchpayFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 }
