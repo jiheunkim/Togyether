@@ -14,19 +14,29 @@
         android:layout_marginRight="15dp"
         android:src="@drawable/delete" />
 
+    <CheckBox
+        android:id="@+id/cb_necessary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:fontFamily="@font/notosans_medium"
+        android:text="고정지출"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
+        android:paddingBottom="15dp"
+        android:background="@drawable/line_gray"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginRight="30dp"
+            android:layout_marginRight="50dp"
             android:text="분류"
             android:textColor="@color/black"
             android:textSize="16dp"
@@ -58,11 +68,98 @@
             android:textColor="#787878" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:paddingBottom="15dp"
+        android:background="@drawable/line_gray"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="50dp"
+            android:text="카테고리"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_semibold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:paddingBottom="15dp"
+        android:background="@drawable/line_gray"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="50dp"
+            android:text="내용"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_semibold" />
+
+        <EditText
+            android:id="@+id/content_text"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginRight="25dp"
+            android:background="@drawable/line_gray"
+            android:inputType="textShortMessage"
+            android:hint="입력하세요"
+            android:textColorHint="#A3A3A3"
+            android:lines="1"
+            android:fontFamily="@font/notosans_bold"
+            android:paddingLeft="15dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:paddingBottom="15dp"
+        android:background="@drawable/line_gray"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="50dp"
+            android:text="날짜"
+            android:textColor="@color/black"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_semibold" />
+
+        <TextView
+            android:id="@+id/date_text"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginRight="25dp"
+            android:background="@drawable/line_gray"
+            android:textSize="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:paddingTop="5dp"
+            android:paddingLeft="15dp" />
+    </LinearLayout>
+
     <EditText
         android:id="@+id/price"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="15dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:background="@drawable/edittext"
@@ -80,7 +177,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:background="@drawable/btn_blue"
         android:text="저장"
         android:textSize="18dp"

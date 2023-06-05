@@ -6,10 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.togyether.Model.PriceModel
@@ -62,7 +59,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
             var iDay = day?.dayOfMonth
 
             var yearMonth = "$iYear 년   $iMonth 월   $iDay 일"
-            //Toast.makeText(holder.itemView.context, yearMonth, Toast.LENGTH_SHORT).show()
 
             // BottomSheetDialog 생성
             val bottomSheetDialog = BottomSheetDialog(holder.itemView.context)
@@ -125,15 +121,27 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                     expensesBtn.setBackgroundResource(R.drawable.btn_circle_gray)
                 }
 
+                // 가계부 내역 추가 다이얼로그 날짜 정보 넣기
+                val dateTextView2 = secondView.findViewById<TextView>(R.id.date_text)
+                dateTextView2.text = yearMonth
+
+                // 가계부 내역 추가 다이얼로그 고정지출 정보 받기
+                val checkBox = secondView.findViewById<CheckBox>(R.id.cb_necessary)
+                checkBox.setOnClickListener {
+                    //추가 구현
+                }
+
                 // 가계부 내역 추가 다이얼로그 표시
                 contentAddDialog.setContentView(secondView)
                 contentAddDialog.show()
 
                 // btn_content 클릭 이벤트
                 val btnCotent = secondView.findViewById<Button>(R.id.btn_content)
+                val contentEditText = secondView.findViewById<EditText>(R.id.content_text)
+
                 btnCotent.setOnClickListener {
                     // 가계부 RecyclerView에 데이터 추가
-                    val priceTitle = priceEditText.text.toString() // EditText에서 가져온 정보로 대체
+                    val priceTitle = contentEditText.text.toString() // EditText에서 가져온 정보로 대체
                     val priceCategory = "카테고리" // EditText에서 가져온 정보로 대체
                     val priceValue = priceEditText.text.toString()
 
