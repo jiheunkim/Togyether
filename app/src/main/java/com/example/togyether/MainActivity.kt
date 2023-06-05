@@ -2,11 +2,16 @@ package com.example.togyether
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import com.example.togyether.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    var pigmoneyFragment: Fragment? = null
+    var categoryFragment: Fragment? = null
+    var dutchpayFrameFragment: Fragment? = null
+    var currencyFragment: Fragment? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
@@ -23,27 +28,47 @@ class MainActivity : AppCompatActivity() {
         mainBtn.run()
         {
             setOnNavigationItemSelectedListener {
+                // 다른 프래그먼트 화면으로 이동하는 기능
                 when (it.itemId) {
                     R.id.first -> {
-                        // 다른 프래그먼트 화면으로 이동하는 기능
-                        val chatFragment = PigmoneyFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.container, chatFragment).commit()
+                        if(pigmoneyFragment == null){
+                            pigmoneyFragment = PigmoneyFragment()
+                            supportFragmentManager.beginTransaction().add(R.id.container, pigmoneyFragment!!).commit()
+                        }
+                        if(pigmoneyFragment != null) supportFragmentManager.beginTransaction().show(pigmoneyFragment!!).commit()
+                        if(categoryFragment != null) supportFragmentManager.beginTransaction().hide(categoryFragment!!).commit()
+                        if(dutchpayFrameFragment != null) supportFragmentManager.beginTransaction().hide(dutchpayFrameFragment!!).commit()
+                        if(currencyFragment != null) supportFragmentManager.beginTransaction().hide(currencyFragment!!).commit()
                     }
                     R.id.second -> {
-                        val myplaceFragment = CategoryFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.container, myplaceFragment).commit()
+                        if(categoryFragment == null){
+                            categoryFragment = CategoryFragment()
+                            supportFragmentManager.beginTransaction().add(R.id.container, categoryFragment!!).commit()
+                        }
+                        if(pigmoneyFragment != null) supportFragmentManager.beginTransaction().hide(pigmoneyFragment!!).commit()
+                        if(categoryFragment != null) supportFragmentManager.beginTransaction().show(categoryFragment!!).commit()
+                        if(dutchpayFrameFragment != null) supportFragmentManager.beginTransaction().hide(dutchpayFrameFragment!!).commit()
+                        if(currencyFragment != null) supportFragmentManager.beginTransaction().hide(currencyFragment!!).commit()
                     }
                     R.id.third -> {
-                        val friendFragment = DutchpayFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.container, friendFragment).commit()
+                        if(dutchpayFrameFragment == null){
+                            dutchpayFrameFragment = DutchpayFrameFragment()
+                            supportFragmentManager.beginTransaction().add(R.id.container, dutchpayFrameFragment!!).commit()
+                        }
+                        if(pigmoneyFragment != null) supportFragmentManager.beginTransaction().hide(pigmoneyFragment!!).commit()
+                        if(categoryFragment != null) supportFragmentManager.beginTransaction().hide(categoryFragment!!).commit()
+                        if(dutchpayFrameFragment != null) supportFragmentManager.beginTransaction().show(dutchpayFrameFragment!!).commit()
+                        if(currencyFragment != null) supportFragmentManager.beginTransaction().hide(currencyFragment!!).commit()
                     }
                     R.id.forth -> {
-                        val profileFragment = CurrencyFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.container, profileFragment).commit()
+                        if(currencyFragment == null){
+                            currencyFragment = CurrencyFragment()
+                            supportFragmentManager.beginTransaction().add(R.id.container, currencyFragment!!).commit()
+                        }
+                        if(pigmoneyFragment != null) supportFragmentManager.beginTransaction().hide(pigmoneyFragment!!).commit()
+                        if(categoryFragment != null) supportFragmentManager.beginTransaction().hide(categoryFragment!!).commit()
+                        if(dutchpayFrameFragment != null) supportFragmentManager.beginTransaction().hide(dutchpayFrameFragment!!).commit()
+                        if(currencyFragment != null) supportFragmentManager.beginTransaction().show(currencyFragment!!).commit()
                     }
 
                 }
