@@ -29,49 +29,47 @@ class JoinActivity : AppCompatActivity() {
 
     private fun initLayout() {
         binding.apply {
+            // 가입하기 버튼 비활성화
+            joinButton.isEnabled=false
+
             passwdAreaCheck.addTextChangedListener(object : TextWatcher {
                 //입력이 끝났을 때
-                //4. 비밀번호 일치하는지 확인
+                // 비밀번호 일치하는지 확인
                 override fun afterTextChanged(p0: Editable?) {
                     if(passwdArea.text.toString().equals(passwdAreaCheck.text.toString())){
                         pwConfirm.text = "비밀번호가 일치합니다."
                         pwConfirm.setTextColor(ContextCompat.getColor(applicationContext!!, R.color.black))
+
                         // 가입하기 버튼 활성화
                         joinButton.isEnabled=true
                     }
                     else{
                         pwConfirm.text = "비밀번호가 일치하지 않습니다."
-                        // 가입하기 버튼 비활성화
-                        joinButton.isEnabled=false
                     }
                 }
                 //입력하기 전
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
                 }
                 //텍스트 변화가 있을 시
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     if(passwdArea.text.toString().equals(passwdAreaCheck.text.toString())){
                         pwConfirm.text = "비밀번호가 일치합니다."
                         pwConfirm.setTextColor(ContextCompat.getColor(applicationContext!!, R.color.black))
+
                         // 가입하기 버튼 활성화
                         joinButton.isEnabled=true
                     }
                     else{
                         pwConfirm.text = "비밀번호가 일치하지 않습니다."
-                        // 가입하기 버튼 비활성화
-                        joinButton.isEnabled=false
                     }
                 }
             })
-
 
             //회원가입 버튼 누를 경우
             joinButton.setOnClickListener {
                 //입력한 id, passwd를 가져와 변수에 저장
                 val id = idArea.text.toString()
                 val passwd = passwdArea.text.toString()
-
 
                 //인증 데이터베이스(로그인용)에 사용자 추가
                 auth = Firebase.auth
@@ -87,10 +85,10 @@ class JoinActivity : AppCompatActivity() {
                             val table = Firebase.database.getReference("users")
                             val tuple = table.child(uid)
                             tuple.setValue(user).addOnCompleteListener{
-                                Toast.makeText(this@JoinActivity, "객체넣기 성공", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@JoinActivity, "회원가입 성공", Toast.LENGTH_SHORT).show()
                             }
                                 .addOnFailureListener {
-                                    Toast.makeText(this@JoinActivity, "객체넣기 실패", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(this@JoinActivity, "회원가입 실패", Toast.LENGTH_SHORT).show()
                                 }
 
                             //로그인 화면으로 전환
@@ -100,6 +98,7 @@ class JoinActivity : AppCompatActivity() {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("REGISTER", "실패")
+                            Toast.makeText(this@JoinActivity, "이미 존재하는 계정입니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
             }
