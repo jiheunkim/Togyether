@@ -135,6 +135,13 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                 contentAddDialog.setContentView(secondView)
                 contentAddDialog.show()
 
+                // 가계부 내역 추가 다이얼로그 닫기 버튼 이벤트
+                val btnclose = secondView.findViewById<ImageView>(R.id.imageView)
+                btnclose.setOnClickListener {
+                    // 가계부 내역 추가 다이얼로그 닫기
+                    contentAddDialog.dismiss()
+                }
+
                 // btn_content 클릭 이벤트
                 val btnCotent = secondView.findViewById<Button>(R.id.btn_content)
                 val contentEditText = secondView.findViewById<EditText>(R.id.content_text)
