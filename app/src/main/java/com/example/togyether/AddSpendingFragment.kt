@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.togyether.databinding.FragmentMyBinding
+import com.example.togyether.databinding.FragmentDutchpayGroupBinding
 
 class AddSpendingFragment : Fragment() {
-    lateinit var binding: FragmentMyBinding
+    lateinit var binding: FragmentDutchpayGroupBinding
     lateinit var memberAdapter: memberAdapter
     lateinit var spendingAdapter: spendingAdapter
     lateinit var transferAdapter: transferAdapter
@@ -24,7 +24,7 @@ class AddSpendingFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentMyBinding.inflate(layoutInflater, container, false)
+        binding = FragmentDutchpayGroupBinding.inflate(layoutInflater, container, false)
         val view = binding.root
         with(view) {
             binding.recyclerView1.layoutManager = LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
