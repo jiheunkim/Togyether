@@ -1,0 +1,16 @@
+<vector android:height="40dp"
+    android:width="40dp"
+    android:viewportHeight="24"
+    android:viewportWidth="24"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:name="background">
+        <path
+            android:pathData="M12,0C5.373,0 0,5.373 0,12s5.373,12 12,12s12,-5.373 12,-12S18.627,0 12,0z"
+            android:fillColor="@color/skyblue"/>
+    </group>
+
+    <path android:fillColor="#59A6C8"
+        android:fillType="evenOdd"
+        android:pathData="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5z"/>
+</vector>
