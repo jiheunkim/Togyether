@@ -87,6 +87,15 @@
             android:textColor="@color/black"
             android:textSize="16dp"
             android:fontFamily="@font/notosans_semibold" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:layout_width="160dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="25dp"
+            android:id="@+id/spinner"
+            android:popupBackground="@color/white"
+            android:spinnerMode="dialog"
+            android:layout_weight="0.21"/>
     </LinearLayout>
 
     <LinearLayout
