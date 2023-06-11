@@ -3,6 +3,7 @@ package com.example.togyether
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.togyether.Model.PriceModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import org.json.JSONArray
+import org.json.JSONException
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
@@ -26,6 +35,9 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
     // RecyclerView 인스턴스
     private lateinit var recyclerView: RecyclerView
 
+    lateinit var setDay: String
+    lateinit var myUid: String
+
     class ItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val dayText: TextView = itemView.findViewById(R.id.dayText)
     }
@@ -38,6 +50,8 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+
         var day = dayList[holder.adapterPosition] // 날짜
         var selectedDate: LocalDate = LocalDate.now() // 현재 날짜
 
@@ -68,6 +82,46 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
             // BottomSheetDialog의 콘텐츠 레이아웃에서 날짜 정보 표시
             val dateTextView = view.findViewById<TextView>(R.id.dayDialog)
             dateTextView.text = yearMonth
+
+            val db = Firebase.database.getReference("user")
+            db.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (users in dataSnapshot.children) {
+                        val uid = users.child("uid").value.toString()
+
+                        if (myUid == uid) {
+                            val listnum = users.child("calendar").child("2023")
+                                .child(iMonth.toString()+"m").child(iDay.toString()+"d").value.toString()
+
+                            val priceList = mutableListOf<String>()
+
+                            // 큰 따옴표로 감싼 JSON 배열로 수정
+                            val correctedJsonString = "$listnum"
+
+                            try {
+                                val jsonArray = JSONArray(correctedJsonString)
+                                for (i in 0 until jsonArray.length()) {
+                                    val jsonObject = jsonArray.getJSONObject(i)
+                                    val date = jsonObject.getString("date")
+                                    val price = jsonObject.getString("price")
+                                    val category = jsonObject.getString("category")
+                                    val title = jsonObject.getString("title")
+
+                                    val formattedPrice = "$date, $price, $category, $title"
+                                    Log.i("info", jsonObject.toString())
+                                    priceList.add(formattedPrice)
+                                }
+                            } catch (e: JSONException) {
+                                Log.e("error", "JSON parsing error: ${e.message}")
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
 
             // btn_add 클릭 이벤트
             val btnAdd = view.findViewById<ImageView>(R.id.btn_add)
@@ -148,20 +202,24 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
 
                 btnCotent.setOnClickListener {
                     // 가계부 RecyclerView에 데이터 추가
-                    val priceTitle = contentEditText.text.toString() // EditText에서 가져온 정보로 대체
+                    val priceTitle = contentEditText.text.toString() // 내용 정보
                     val priceCategory = "카테고리" // EditText에서 가져온 정보로 대체
                     val priceValue = priceEditText.text.toString()
+                    val priceDate = dateTextView.text.toString() // 날짜 정보
 
-                    val priceModel = PriceModel(priceTitle, priceCategory, priceValue)
+                    val priceModel = PriceModel(priceDate, priceTitle, priceCategory, priceValue)
                     priceList.add(priceModel)
                     priceAdapter.notifyItemInserted(priceList.size - 1)
 
                     // 가계부 내역 추가 다이얼로그 닫기
                     contentAddDialog.dismiss()
 
-                    // RecyclerView 설정
-                    recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-                    recyclerView.adapter = priceAdapter
+
+                    if (priceDate == dateTextView2.text.toString()) {
+                        // RecyclerView 설정
+                        recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
+                        recyclerView.adapter = priceAdapter
+                    }
                 }
             }
 

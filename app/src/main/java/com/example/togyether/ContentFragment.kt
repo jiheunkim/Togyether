@@ -1,10 +1,18 @@
 package com.example.togyether
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.togyether.databinding.FragmentContentBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,20 +29,48 @@ class ContentFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    lateinit var binding: FragmentContentBinding
+    lateinit var myUid: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        usernameFromFirebase() // 사용자 이름 정보 가져오기
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_content, container, false)
+        binding = FragmentContentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    private fun usernameFromFirebase() {
+        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+
+        val db = Firebase.database.getReference("user")
+        db.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (users in dataSnapshot.children) {
+                    val name = users.child("username").value.toString()
+                    val uid = users.child("uid").value.toString()
+                    Log.i("user", name.plus(uid))
+
+                    if (myUid == uid) {
+                        binding.myName.text = name
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Error handling
+            }
+        })
     }
 
     companion object {

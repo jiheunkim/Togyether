@@ -1,6 +1,7 @@
 package com.example.togyether
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.togyether.databinding.FragmentCalenderBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -18,25 +25,25 @@ import java.time.format.DateTimeFormatter
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [CalenderFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CalenderFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
     lateinit var selectedDate: LocalDate
-
     lateinit var binding: FragmentCalenderBinding
+
+    lateinit var myUid: String
+    lateinit var setMonth: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        usernameFromFirebase() // 사용자 이름 정보 가져오기
     }
 
     override fun onCreateView(
@@ -47,21 +54,126 @@ class CalenderFragment : Fragment() {
         return binding.root
     }
 
+    private fun usernameFromFirebase() {
+        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+
+        val db = Firebase.database.getReference("user")
+        db.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (users in dataSnapshot.children) {
+                    val name = users.child("username").value.toString()
+                    val uid = users.child("uid").value.toString()
+                    Log.i("user", name.plus(uid))
+
+                    if (myUid == uid) {
+                        binding.myName.text = name
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Error handling
+            }
+        })
+    }
+
+    private fun calendarFromFirebase() {
+        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+
+        val db = Firebase.database.getReference("user")
+        db.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (users in dataSnapshot.children) {
+                    val uid = users.child("uid").value.toString()
+
+                    if (myUid == uid) {
+                        when (setMonth) {
+                            "JANUARY" -> {
+                                val month = users.child("calendar").child("2023").child("1m").value.toString()
+                            }
+                            "FEBRUARY" -> {
+                                val month = users.child("calendar").child("2023").child("2m").value.toString()
+                            }
+                            "MARCH" -> {
+                                val month = users.child("calendar").child("2023").child("3m").value.toString()
+                            }
+                            "APRIL" -> {
+                                val month = users.child("calendar").child("2023").child("4m").value.toString()
+                            }
+                            "MAY" -> {
+                                val spent = users.child("calendar").child("2023").child("5m").child("expense").value.toString()
+                                val income = users.child("calendar").child("2023").child("5m").child("income").value.toString()
+                                val budget = users.child("calendar").child("2023").child("5m").child("budget").value.toString()
+
+                                binding.spentMoney.text = spent
+                                binding.incomeMoney.text = income
+                                binding.planMoney.text = budget
+                            }
+                            "JUNE" -> {
+                                val spent = users.child("calendar").child("2023").child("6m").child("expense").value.toString()
+                                val income = users.child("calendar").child("2023").child("6m").child("income").value.toString()
+                                val budget = users.child("calendar").child("2023").child("6m").child("budget").value.toString()
+
+                                binding.spentMoney.text = spent
+                                binding.incomeMoney.text = income
+                                binding.planMoney.text = budget
+                            }
+                            "JULY" -> {
+                                val spent = users.child("calendar").child("2023").child("7m").child("expense").value.toString()
+                                val income = users.child("calendar").child("2023").child("7m").child("income").value.toString()
+                                val budget = users.child("calendar").child("2023").child("7m").child("budget").value.toString()
+
+                                binding.spentMoney.text = spent
+                                binding.incomeMoney.text = income
+                                binding.planMoney.text = budget
+                            }
+                            "AUGUST" -> {
+                                val month = users.child("calendar").child("2023").child("8m").value.toString()
+                            }
+                            "SEPTEMBER" -> {
+                                val month = users.child("calendar").child("2023").child("9m").value.toString()
+                            }
+                            "OCTOBER" -> {
+                                val month = users.child("calendar").child("2023").child("10m").value.toString()
+                            }
+                            "NOVEMBER" -> {
+                                val month = users.child("calendar").child("2023").child("11m").value.toString()
+                            }
+                            "DECEMBER" -> {
+                                val month = users.child("calendar").child("2023").child("12m").value.toString()
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Error handling
+            }
+        })
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         selectedDate = LocalDate.now() // 현재 날짜
+        setMonth = selectedDate.month.toString()
+        calendarFromFirebase() // 달력 월금액 정보 가져오기
         setMonthView() // 월 이동
 
         binding.lastMonth.setOnClickListener {
             // 이전 달 버튼 이벤트
             selectedDate = selectedDate.minusMonths(1)
+            setMonth = selectedDate.month.toString()
+            calendarFromFirebase() // 달력 월금액 정보 가져오기
             setMonthView()
         }
 
         binding.nextMonth.setOnClickListener {
             // 다음 달 버튼 이벤트
             selectedDate = selectedDate.plusMonths(1)
+            setMonth = selectedDate.month.toString()
+            calendarFromFirebase() // 달력 월금액 정보 가져오기
             setMonthView()
         }
     }
