@@ -31,7 +31,7 @@
             android:src="@drawable/ic_launcher_background"/>
 
         <TextView
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="13sp"
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/notosans_medium"
             android:text="test"
