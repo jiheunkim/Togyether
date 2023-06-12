@@ -82,19 +82,47 @@ class JoinActivity : AppCompatActivity() {
                             val user = User(uid!!, username)
 
                             //데이터베이스에 회원가입한 사용자 정보 추가
-                            val table = Firebase.database.getReference("users")
-                            val tuple = table.child(uid)
-                            tuple.setValue(user).addOnCompleteListener{
-                                Toast.makeText(this@JoinActivity, "회원가입 성공", Toast.LENGTH_SHORT).show()
-                            }
-                                .addOnFailureListener {
+                            val database = Firebase.database
+                            val table = database.getReference("user")
+                            val userEntry = table.child(uid)
+                            userEntry.setValue(user).addOnCompleteListener { userEntryTask ->
+                                if (userEntryTask.isSuccessful) {
+                                    // 데이터베이스에 사용자 정보 추가 성공
+                                    val year = "2023" // 예시로 고정된 연도
+                                    val months = arrayOf("1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m", "11m", "12m")
+                                    val days28 = arrayOf("1d", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "10d", "11d", "12d", "13d", "14d", "15d", "16d", "17d", "18d", "19d", "20d", "21d", "22d", "23d", "24d", "25d", "26d", "27d", "28d")
+                                    val days30 = days28 + arrayOf("29d", "30d")
+                                    val days31 = days30 + arrayOf("31d")
+
+                                    // 월별 데이터 초기화
+                                    for (month in months) {
+                                        val monthEntry = userEntry.child("calendar").child(year).child(month)
+                                        monthEntry.child("budget").setValue(0)
+                                        monthEntry.child("expense").setValue(0)
+                                        monthEntry.child("income").setValue(0)
+
+                                        // 일별 데이터 초기화
+                                        val days: Array<String> = when (month) {
+                                            "2m" -> days28
+                                            "4m", "6m", "9m", "11m" -> days30
+                                            else -> days31
+                                        }
+                                        for (day in days) {
+                                            monthEntry.child(day).setValue("")
+                                        }
+                                    }
+
+                                    Toast.makeText(this@JoinActivity, "회원가입 성공", Toast.LENGTH_SHORT).show()
+
+                                    //로그인 화면으로 전환
+                                    val intent = Intent(this@JoinActivity, LoginActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    startActivity(intent)
+                                } else {
+                                    // 데이터베이스에 사용자 정보 추가 실패
                                     Toast.makeText(this@JoinActivity, "회원가입 실패", Toast.LENGTH_SHORT).show()
                                 }
-
-                            //로그인 화면으로 전환
-                            val intent = Intent(this@JoinActivity, LoginActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("REGISTER", "실패")
