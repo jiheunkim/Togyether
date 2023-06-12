@@ -36,7 +36,7 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
     // RecyclerView 인스턴스
     private lateinit var recyclerView: RecyclerView
 
-    lateinit var setDay: String
+    lateinit var listSize: String
     lateinit var myUid: String
 
     class ItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
@@ -50,8 +50,57 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
         return ItemViewHolder(view)
     }
 
+    /**
+     * 리사이클러뷰의 데이터를 업데이트하고 화면 갱신
+     *
+     * @param year 연도
+     * @param month 월
+     * @param day 일
+     */
+    private fun updateRecyclerViewData(year: String, month: String, day: String, onComplete: (Int) -> Unit) {
+        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+
+        val db = Firebase.database.getReference("togyether")
+        db.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (users in dataSnapshot.children) {
+                    val uid = users.child("uid").value.toString()
+
+                    if (myUid == uid) {
+                        val userDB = users.child("calendar")
+                            .child(year).child(month).child(day)
+                        val num = userDB.child("num").value.toString()
+
+                        // 리사이클러뷰에 등록된 가계부 내역을 불러옴
+                        priceList.clear()
+                        for (i in 0 until num.toInt()) {
+                            val priceEntry = userDB.child(i.toString())
+                            val priceCategory = priceEntry.child("category").value.toString()
+                            val priceDate = priceEntry.child("date").value.toString()
+                            val priceValue = priceEntry.child("price").value.toString()
+                            val priceTitle = priceEntry.child("title").value.toString()
+                            val priceModel = PriceModel(priceDate, priceTitle, priceCategory, priceValue)
+                            priceList.add(priceModel)
+                        }
+
+//                        // 데이터 변경을 알림
+//                        priceAdapter.notifyDataSetChanged()
+
+                        // onComplete 콜백 함수 호출하여 데이터 크기 전달
+                        onComplete(priceList.size)
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Error handling
+            }
+        })
+    }
+
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+        listSize = "0"
 
         var day = dayList[holder.adapterPosition] // 날짜
         var selectedDate: LocalDate = LocalDate.now() // 현재 날짜
@@ -79,6 +128,30 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
             val bottomSheetDialog = BottomSheetDialog(holder.itemView.context)
             val view = LayoutInflater.from(holder.itemView.context)
                 .inflate(R.layout.dialog_calendar, null)
+
+            // RecyclerView 설정
+            val recyclerView = view.findViewById<RecyclerView>(R.id.detailCalendar)
+            recyclerView.layoutManager = LinearLayoutManager(view.context)
+            recyclerView.adapter = priceAdapter
+
+            // 리사이클러뷰에 등록된 가계부 내역을 불러오기 위해 데이터베이스 정보 업데이트
+            // 리사이클러뷰의 어댑터에 데이터를 다시 설정하고 notifyDatasetChanged를 호출하여 업데이트된 데이터 표시
+            // 리사이클러뷰의 어댑터에 데이터를 다시 설정하고 notifyDatasetChanged를 호출하여 업데이트된 데이터 표시
+            val year = iYear.toString()
+            val month = iMonth.toString() + "m"
+            val day = iDay.toString() + "d"
+            updateRecyclerViewData(year, month, day) { size ->
+                // 데이터 변경을 알림
+                priceAdapter.notifyDataSetChanged()
+
+                // totalDialog에 아이템 개수 설정
+                val totalDialog = view.findViewById<TextView>(R.id.totalDialog)
+                totalDialog.text = size.toString()
+            }
+
+            // BottomSheetDialog 표시
+            bottomSheetDialog.setContentView(view)
+            bottomSheetDialog.show()
 
             // BottomSheetDialog의 콘텐츠 레이아웃에서 날짜 정보 표시
             val dateTextView = view.findViewById<TextView>(R.id.dayDialog)
@@ -176,8 +249,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                     val priceModel = PriceModel(priceDate, priceTitle, priceCategory, priceValue)
                     var subNum = 0
 
-                    myUid = FirebaseAuth.getInstance().currentUser?.uid!!
-
                     val db = Firebase.database.getReference("togyether")
                     db.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -194,48 +265,50 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                     subNum = num.toInt()
                                 }
                             }
+
+                            // 데이터베이스에 가계부 내역 추가
+                            val priceEntry = db.child(myUid).child("calendar")
+                                .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child(subNum.toString())
+                            priceEntry.child("category").setValue(priceCategory)
+                            priceEntry.child("date").setValue(priceDate)
+                            priceEntry.child("price").setValue(priceValue)
+                            priceEntry.child("title").setValue(priceTitle)
+
+                            // num 값 1 증가
+                            db.child(myUid).child("calendar")
+                                .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("num").setValue(subNum+1)
+
+                            priceList.add(priceModel)
+                            priceAdapter.notifyItemInserted(priceList.size - 1)
+
+                            // 가계부 내역 추가 다이얼로그 닫기
+                            contentAddDialog.dismiss()
+
+                            // RecyclerView 설정
+                            val recyclerView = view.findViewById<RecyclerView>(R.id.detailCalendar)
+                            recyclerView.layoutManager = LinearLayoutManager(view.context)
+                            recyclerView.adapter = priceAdapter
+
+                            updateRecyclerViewData(year, month, day) { size ->
+                                // 데이터 변경을 알림
+                                priceAdapter.notifyDataSetChanged()
+
+                                // totalDialog에 아이템 개수 설정
+                                val totalDialog = view.findViewById<TextView>(R.id.totalDialog)
+                                totalDialog.text = size.toString()
+                            }
+
+                            // BottomSheetDialog 표시
+                            bottomSheetDialog.setContentView(view)
+                            bottomSheetDialog.show()
                         }
 
                         override fun onCancelled(databaseError: DatabaseError) {
                             // Error handling
                         }
                     })
-
-                    // 데이터베이스에 가계부 내역 추가
-                    val priceEntry = db.child(myUid).child("calendar")
-                        .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child(subNum.toString()).push()
-                    priceEntry.child("category").setValue(priceCategory)
-                    priceEntry.child("date").setValue(priceDate)
-                    priceEntry.child("price").setValue(priceValue)
-                    priceEntry.child("title").setValue(priceTitle)
-
-                    // num 값 1 증가
-                    db.child(myUid).child("calendar")
-                        .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("num").setValue(subNum+1)
-
-                    priceList.add(priceModel)
-                    priceAdapter.notifyItemInserted(priceList.size - 1)
-
-                    // 가계부 내역 추가 다이얼로그 닫기
-                    contentAddDialog.dismiss()
-
-
-                    if (priceDate == dateTextView2.text.toString()) {
-                        // RecyclerView 설정
-                        recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-                        recyclerView.adapter = priceAdapter
-                    }
                 }
             }
-
-            // BottomSheetDialog 표시
-            bottomSheetDialog.setContentView(view)
-            bottomSheetDialog.show()
-
-            // RecyclerView 설정
-            recyclerView = view.findViewById(R.id.detailCalendar)
-            recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-            recyclerView.adapter = priceAdapter
         }
     }
 
