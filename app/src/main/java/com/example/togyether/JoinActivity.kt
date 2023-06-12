@@ -110,6 +110,7 @@ class JoinActivity : AppCompatActivity() {
                                         for (day in days) {
                                             monthEntry.child(day).setValue("")
                                             monthEntry.child(day).child("total").setValue(0)
+                                            monthEntry.child(day).child("num").setValue(0)
                                         }
                                     }
 
