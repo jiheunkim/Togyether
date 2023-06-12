@@ -272,6 +272,29 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                             db.child(myUid).child("calendar")
                                 .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("num").setValue(subNum+1)
 
+//                            // 가계부 내역을 불러와서 합산
+//                            val totalRef = db.child(myUid).child("calendar")
+//                                .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("total")
+//                            totalRef.addListenerForSingleValueEvent(object : ValueEventListener {
+//                                override fun onDataChange(snapshot: DataSnapshot) {
+//                                    val totalPrice = dataSnapshot.getValue(Int::class.java)
+//                                    if (totalPrice != null) {
+//                                        val priceNumber = priceEditText.text.toString().replace("원", "").replace(",", "").toInt()
+//                                        val updatedTotal = totalPrice + priceNumber
+//                                        totalRef.setValue(updatedTotal)
+//
+//                                        // totalSum
+//                                        val totalSum = view.findViewById<TextView>(R.id.total_sum)
+//                                        totalSum.text = updatedTotal.toString()
+//                                    }
+//                                }
+//
+//                                override fun onCancelled(error: DatabaseError) {
+//                                    TODO("Not yet implemented")
+//                                }
+//
+//                            })
+
                             priceList.add(priceModel)
                             priceAdapter.notifyItemInserted(priceList.size - 1)
 
