@@ -83,7 +83,7 @@ class JoinActivity : AppCompatActivity() {
 
                             //데이터베이스에 회원가입한 사용자 정보 추가
                             val database = Firebase.database
-                            val table = database.getReference("user")
+                            val table = database.getReference("togyether")
                             val userEntry = table.child(uid)
                             userEntry.setValue(user).addOnCompleteListener { userEntryTask ->
                                 if (userEntryTask.isSuccessful) {
@@ -109,6 +109,7 @@ class JoinActivity : AppCompatActivity() {
                                         }
                                         for (day in days) {
                                             monthEntry.child(day).setValue("")
+                                            monthEntry.child(day).child("total").setValue(0)
                                         }
                                     }
 
