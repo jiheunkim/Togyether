@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.togyether.Model.PriceModel
@@ -83,46 +84,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
             val dateTextView = view.findViewById<TextView>(R.id.dayDialog)
             dateTextView.text = yearMonth
 
-            val db = Firebase.database.getReference("user")
-            db.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    for (users in dataSnapshot.children) {
-                        val uid = users.child("uid").value.toString()
-
-                        if (myUid == uid) {
-                            val listnum = users.child("calendar").child("2023")
-                                .child(iMonth.toString()+"m").child(iDay.toString()+"d").value.toString()
-
-                            val priceList = mutableListOf<String>()
-
-                            // 큰 따옴표로 감싼 JSON 배열로 수정
-                            val correctedJsonString = "$listnum"
-
-                            try {
-                                val jsonArray = JSONArray(correctedJsonString)
-                                for (i in 0 until jsonArray.length()) {
-                                    val jsonObject = jsonArray.getJSONObject(i)
-                                    val date = jsonObject.getString("date")
-                                    val price = jsonObject.getString("price")
-                                    val category = jsonObject.getString("category")
-                                    val title = jsonObject.getString("title")
-
-                                    val formattedPrice = "$date, $price, $category, $title"
-                                    Log.i("info", jsonObject.toString())
-                                    priceList.add(formattedPrice)
-                                }
-                            } catch (e: JSONException) {
-                                Log.e("error", "JSON parsing error: ${e.message}")
-                            }
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
-
             // btn_add 클릭 이벤트
             val btnAdd = view.findViewById<ImageView>(R.id.btn_add)
             btnAdd.setOnClickListener {
@@ -196,6 +157,12 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                     contentAddDialog.dismiss()
                 }
 
+                // 가계부 내역 추가 다이얼로그 스피너 초기화
+                val spinner = secondView.findViewById<AppCompatSpinner>(R.id.category_spinner)
+                val categories = listOf("식당", "카페", "생필품", "문화", "주거", "금융", "쇼핑", "교통", "여행")
+                val categoryAdapter = CategoryAdapter(holder.itemView.context, categories)
+                spinner.adapter = categoryAdapter
+
                 // btn_content 클릭 이벤트
                 val btnCotent = secondView.findViewById<Button>(R.id.btn_content)
                 val contentEditText = secondView.findViewById<EditText>(R.id.content_text)
@@ -203,11 +170,49 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                 btnCotent.setOnClickListener {
                     // 가계부 RecyclerView에 데이터 추가
                     val priceTitle = contentEditText.text.toString() // 내용 정보
-                    val priceCategory = "카테고리" // EditText에서 가져온 정보로 대체
+                    val priceCategory = spinner.selectedItem.toString() // 선택한 카테고리 스피너 정보 가져오기
                     val priceValue = priceEditText.text.toString()
                     val priceDate = dateTextView.text.toString() // 날짜 정보
-
                     val priceModel = PriceModel(priceDate, priceTitle, priceCategory, priceValue)
+                    var subNum = 0
+
+                    myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+
+                    val db = Firebase.database.getReference("togyether")
+                    db.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            for (users in dataSnapshot.children) {
+                                val uid = users.child("uid").value.toString()
+
+                                if (myUid == uid) {
+                                    // 데이터베이스에 가계부 내역 추가
+                                    val userDB = users.child("calendar")
+                                        .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d")
+                                    val num = userDB.child("num").value.toString()
+                                    userDB.child(num)
+
+                                    subNum = num.toInt()
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            // Error handling
+                        }
+                    })
+
+                    // 데이터베이스에 가계부 내역 추가
+                    val priceEntry = db.child(myUid).child("calendar")
+                        .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child(subNum.toString()).push()
+                    priceEntry.child("category").setValue(priceCategory)
+                    priceEntry.child("date").setValue(priceDate)
+                    priceEntry.child("price").setValue(priceValue)
+                    priceEntry.child("title").setValue(priceTitle)
+
+                    // num 값 1 증가
+                    db.child(myUid).child("calendar")
+                        .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("num").setValue(subNum+1)
+
                     priceList.add(priceModel)
                     priceAdapter.notifyItemInserted(priceList.size - 1)
 

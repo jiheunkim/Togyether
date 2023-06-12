@@ -53,7 +53,7 @@ class ContentFragment : Fragment() {
     private fun usernameFromFirebase() {
         myUid = FirebaseAuth.getInstance().currentUser?.uid!!
 
-        val db = Firebase.database.getReference("user")
+        val db = Firebase.database.getReference("togyether")
         db.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (users in dataSnapshot.children) {

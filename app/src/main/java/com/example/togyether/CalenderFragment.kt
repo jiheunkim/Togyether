@@ -19,7 +19,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
@@ -57,7 +56,7 @@ class CalenderFragment : Fragment() {
     private fun usernameFromFirebase() {
         myUid = FirebaseAuth.getInstance().currentUser?.uid!!
 
-        val db = Firebase.database.getReference("user")
+        val db = Firebase.database.getReference("togyether")
         db.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (users in dataSnapshot.children) {
@@ -77,95 +76,95 @@ class CalenderFragment : Fragment() {
         })
     }
 
-    private fun calendarFromFirebase() {
-        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
-
-        val db = Firebase.database.getReference("user")
-        db.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (users in dataSnapshot.children) {
-                    val uid = users.child("uid").value.toString()
-
-                    if (myUid == uid) {
-                        when (setMonth) {
-                            "JANUARY" -> {
-                                val month = users.child("calendar").child("2023").child("1m").value.toString()
-                            }
-                            "FEBRUARY" -> {
-                                val month = users.child("calendar").child("2023").child("2m").value.toString()
-                            }
-                            "MARCH" -> {
-                                val month = users.child("calendar").child("2023").child("3m").value.toString()
-                            }
-                            "APRIL" -> {
-                                val month = users.child("calendar").child("2023").child("4m").value.toString()
-                            }
-                            "MAY" -> {
-                                val spent = users.child("calendar").child("2023").child("5m").child("expense").value.toString()
-                                val income = users.child("calendar").child("2023").child("5m").child("income").value.toString()
-                                val budget = users.child("calendar").child("2023").child("5m").child("budget").value.toString()
-
-                                binding.spentMoney.text = spent
-                                binding.incomeMoney.text = income
-                                binding.planMoney.text = budget
-                            }
-                            "JUNE" -> {
-                                val spent = users.child("calendar").child("2023").child("6m").child("expense").value.toString()
-                                val income = users.child("calendar").child("2023").child("6m").child("income").value.toString()
-                                val budget = users.child("calendar").child("2023").child("6m").child("budget").value.toString()
-
-                                binding.spentMoney.text = spent
-                                binding.incomeMoney.text = income
-                                binding.planMoney.text = budget
-                            }
-                            "JULY" -> {
-                                val spent = users.child("calendar").child("2023").child("7m").child("expense").value.toString()
-                                val income = users.child("calendar").child("2023").child("7m").child("income").value.toString()
-                                val budget = users.child("calendar").child("2023").child("7m").child("budget").value.toString()
-
-                                binding.spentMoney.text = spent
-                                binding.incomeMoney.text = income
-                                binding.planMoney.text = budget
-                            }
-                            "AUGUST" -> {
-                                val month = users.child("calendar").child("2023").child("8m").value.toString()
-                            }
-                            "SEPTEMBER" -> {
-                                val month = users.child("calendar").child("2023").child("9m").value.toString()
-                            }
-                            "OCTOBER" -> {
-                                val month = users.child("calendar").child("2023").child("10m").value.toString()
-                            }
-                            "NOVEMBER" -> {
-                                val month = users.child("calendar").child("2023").child("11m").value.toString()
-                            }
-                            "DECEMBER" -> {
-                                val month = users.child("calendar").child("2023").child("12m").value.toString()
-                            }
-                        }
-                    }
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Error handling
-            }
-        })
-    }
+//    private fun calendarFromFirebase() {
+//        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+//
+//        val db = Firebase.database.getReference("user")
+//        db.addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                for (users in dataSnapshot.children) {
+//                    val uid = users.child("uid").value.toString()
+//
+//                    if (myUid == uid) {
+//                        when (setMonth) {
+//                            "JANUARY" -> {
+//                                val month = users.child("calendar").child("2023").child("1m").value.toString()
+//                            }
+//                            "FEBRUARY" -> {
+//                                val month = users.child("calendar").child("2023").child("2m").value.toString()
+//                            }
+//                            "MARCH" -> {
+//                                val month = users.child("calendar").child("2023").child("3m").value.toString()
+//                            }
+//                            "APRIL" -> {
+//                                val month = users.child("calendar").child("2023").child("4m").value.toString()
+//                            }
+//                            "MAY" -> {
+//                                val spent = users.child("calendar").child("2023").child("5m").child("expense").value.toString()
+//                                val income = users.child("calendar").child("2023").child("5m").child("income").value.toString()
+//                                val budget = users.child("calendar").child("2023").child("5m").child("budget").value.toString()
+//
+//                                binding.spentMoney.text = spent
+//                                binding.incomeMoney.text = income
+//                                binding.planMoney.text = budget
+//                            }
+//                            "JUNE" -> {
+//                                val spent = users.child("calendar").child("2023").child("6m").child("expense").value.toString()
+//                                val income = users.child("calendar").child("2023").child("6m").child("income").value.toString()
+//                                val budget = users.child("calendar").child("2023").child("6m").child("budget").value.toString()
+//
+//                                binding.spentMoney.text = spent
+//                                binding.incomeMoney.text = income
+//                                binding.planMoney.text = budget
+//                            }
+//                            "JULY" -> {
+//                                val spent = users.child("calendar").child("2023").child("7m").child("expense").value.toString()
+//                                val income = users.child("calendar").child("2023").child("7m").child("income").value.toString()
+//                                val budget = users.child("calendar").child("2023").child("7m").child("budget").value.toString()
+//
+//                                binding.spentMoney.text = spent
+//                                binding.incomeMoney.text = income
+//                                binding.planMoney.text = budget
+//                            }
+//                            "AUGUST" -> {
+//                                val month = users.child("calendar").child("2023").child("8m").value.toString()
+//                            }
+//                            "SEPTEMBER" -> {
+//                                val month = users.child("calendar").child("2023").child("9m").value.toString()
+//                            }
+//                            "OCTOBER" -> {
+//                                val month = users.child("calendar").child("2023").child("10m").value.toString()
+//                            }
+//                            "NOVEMBER" -> {
+//                                val month = users.child("calendar").child("2023").child("11m").value.toString()
+//                            }
+//                            "DECEMBER" -> {
+//                                val month = users.child("calendar").child("2023").child("12m").value.toString()
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            override fun onCancelled(databaseError: DatabaseError) {
+//                // Error handling
+//            }
+//        })
+//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         selectedDate = LocalDate.now() // 현재 날짜
         setMonth = selectedDate.month.toString()
-        calendarFromFirebase() // 달력 월금액 정보 가져오기
+//        calendarFromFirebase() // 달력 월금액 정보 가져오기
         setMonthView() // 월 이동
 
         binding.lastMonth.setOnClickListener {
             // 이전 달 버튼 이벤트
             selectedDate = selectedDate.minusMonths(1)
             setMonth = selectedDate.month.toString()
-            calendarFromFirebase() // 달력 월금액 정보 가져오기
+//            calendarFromFirebase() // 달력 월금액 정보 가져오기
             setMonthView()
         }
 
@@ -173,7 +172,7 @@ class CalenderFragment : Fragment() {
             // 다음 달 버튼 이벤트
             selectedDate = selectedDate.plusMonths(1)
             setMonth = selectedDate.month.toString()
-            calendarFromFirebase() // 달력 월금액 정보 가져오기
+//            calendarFromFirebase() // 달력 월금액 정보 가져오기
             setMonthView()
         }
     }
