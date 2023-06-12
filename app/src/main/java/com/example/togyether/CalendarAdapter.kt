@@ -19,8 +19,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import org.json.JSONArray
-import org.json.JSONException
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
@@ -83,9 +81,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                             priceList.add(priceModel)
                         }
 
-//                        // 데이터 변경을 알림
-//                        priceAdapter.notifyDataSetChanged()
-
                         // onComplete 콜백 함수 호출하여 데이터 크기 전달
                         onComplete(priceList.size)
                     }
@@ -135,7 +130,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
             recyclerView.adapter = priceAdapter
 
             // 리사이클러뷰에 등록된 가계부 내역을 불러오기 위해 데이터베이스 정보 업데이트
-            // 리사이클러뷰의 어댑터에 데이터를 다시 설정하고 notifyDatasetChanged를 호출하여 업데이트된 데이터 표시
             // 리사이클러뷰의 어댑터에 데이터를 다시 설정하고 notifyDatasetChanged를 호출하여 업데이트된 데이터 표시
             val year = iYear.toString()
             val month = iMonth.toString() + "m"
