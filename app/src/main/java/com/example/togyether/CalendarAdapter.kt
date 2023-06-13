@@ -155,7 +155,9 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                 val total = users.child("calendar").child(iYear.toString())
                                     .child(iMonth.toString()+"m").child(iDay.toString()+"d")
                                     .child("total").value.toString()
-                                totalSum.text = total
+
+                                val numberFormat = NumberFormat.getInstance(Locale.getDefault())
+                                totalSum.text = numberFormat.format(total.toInt())
                             }
                         }
                     }

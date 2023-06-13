@@ -15,9 +15,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -105,9 +108,11 @@ class CalenderFragment : Fragment() {
                         val income = users.child("calendar").child("2023").child(getMonth).child("income").value.toString()
                         val budget = users.child("calendar").child("2023").child(getMonth).child("budget").value.toString()
 
-                        binding.spentMoney.text = spent
-                        binding.incomeMoney.text = income
-                        binding.planMoney.text = budget
+                        val numberFormat = NumberFormat.getInstance(Locale.getDefault())
+
+                        binding.spentMoney.text = numberFormat.format(spent.toInt())
+                        binding.incomeMoney.text = numberFormat.format(income.toInt())
+                        binding.planMoney.text = numberFormat.format(budget.toInt())
                     }
                 }
             }
