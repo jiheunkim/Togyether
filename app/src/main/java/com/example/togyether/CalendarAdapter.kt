@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.lang.Math.abs
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
@@ -95,6 +96,7 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+        val db = Firebase.database.getReference("togyether")
         listSize = "0"
 
         var day = dayList[holder.adapterPosition] // 날짜
@@ -141,6 +143,27 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                 // totalDialog에 아이템 개수 설정
                 val totalDialog = view.findViewById<TextView>(R.id.totalDialog)
                 totalDialog.text = size.toString()
+
+                // totalSum에 금액 총합 정보 넣기
+                val totalSum = view.findViewById<TextView>(R.id.total_sum)
+                db.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for (users in dataSnapshot.children) {
+                            val uid = users.child("uid").value.toString()
+
+                            if (myUid == uid) {
+                                val total = users.child("calendar").child(iYear.toString())
+                                    .child(iMonth.toString()+"m").child(iDay.toString()+"d")
+                                    .child("total").value.toString()
+                                totalSum.text = total
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        // Error handling
+                    }
+                })
             }
 
             // BottomSheetDialog 표시
@@ -162,6 +185,32 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                 // 가계부 내역 추가 다이얼로그 내부 로직 구현
                 // ,,원 자동 추가
                 val priceEditText = secondView.findViewById<EditText>(R.id.price)
+                priceEditText.setText("")
+
+                // 지출, 수입 버튼
+                val expensesBtn = secondView.findViewById<Button>(R.id.expenses_btn)
+                val incomeBtn = secondView.findViewById<Button>(R.id.income_btn)
+
+                // 디폴트로 선택된 버튼을 expensesBtn으로 설정
+                expensesBtn.setBackgroundResource(R.drawable.btn_circle_green)
+
+                var isExpense = true // expensesBtn이 선택되었는지 여부를 나타내는 변수
+
+                expensesBtn.setOnClickListener {
+                    // expensesBtn 클릭 시
+                    isExpense = true
+                    expensesBtn.setBackgroundResource(R.drawable.btn_circle_green)
+                    incomeBtn.setBackgroundResource(R.drawable.btn_circle_gray)
+                    priceEditText.setText("")
+                }
+
+                incomeBtn.setOnClickListener {
+                    // incomeBtn 클릭 시
+                    isExpense = false
+                    incomeBtn.setBackgroundResource(R.drawable.btn_circle_green)
+                    expensesBtn.setBackgroundResource(R.drawable.btn_circle_gray)
+                    priceEditText.setText("")
+                }
 
                 priceEditText.addTextChangedListener(object : TextWatcher {
                     private val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())
@@ -174,34 +223,25 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                         val rawText = s.toString()
                         val price = rawText.replace(Regex("[^0-9]"), "") // 숫자 이외의 모든 문자 제거
 
-                        if (price.isNotEmpty()) {
-                            val formattedPrice = numberFormat.format(price.toLong())
-                            priceEditText.removeTextChangedListener(this)
-                            priceEditText.setText("$formattedPrice 원")
-                            priceEditText.setSelection(priceEditText.text.length - 1)
-                            priceEditText.addTextChangedListener(this)
+                        if (isExpense) {
+                            if (price.isNotEmpty()) {
+                                val formattedPrice = numberFormat.format(price.toLong())
+                                priceEditText.removeTextChangedListener(this)
+                                priceEditText.setText("-$formattedPrice 원")
+                                priceEditText.setSelection(priceEditText.text.length - 1)
+                                priceEditText.addTextChangedListener(this)
+                            }
+                        } else {
+                            if (price.isNotEmpty()) {
+                                val formattedPrice = numberFormat.format(price.toLong())
+                                priceEditText.removeTextChangedListener(this)
+                                priceEditText.setText("$formattedPrice 원")
+                                priceEditText.setSelection(priceEditText.text.length - 1)
+                                priceEditText.addTextChangedListener(this)
+                            }
                         }
                     }
                 })
-
-                // 지출, 수입 버튼
-                val expensesBtn = secondView.findViewById<Button>(R.id.expenses_btn)
-                val incomeBtn = secondView.findViewById<Button>(R.id.income_btn)
-
-                // 디폴트로 선택된 버튼을 expensesBtn으로 설정
-                expensesBtn.setBackgroundResource(R.drawable.btn_circle_green)
-
-                expensesBtn.setOnClickListener {
-                    // expensesBtn 클릭 시
-                    expensesBtn.setBackgroundResource(R.drawable.btn_circle_green)
-                    incomeBtn.setBackgroundResource(R.drawable.btn_circle_gray)
-                }
-
-                incomeBtn.setOnClickListener {
-                    // incomeBtn 클릭 시
-                    incomeBtn.setBackgroundResource(R.drawable.btn_circle_green)
-                    expensesBtn.setBackgroundResource(R.drawable.btn_circle_gray)
-                }
 
                 // 가계부 내역 추가 다이얼로그 날짜 정보 넣기
                 val dateTextView2 = secondView.findViewById<TextView>(R.id.date_text)
@@ -239,11 +279,16 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                     val priceTitle = contentEditText.text.toString() // 내용 정보
                     val priceCategory = spinner.selectedItem.toString() // 선택한 카테고리 스피너 정보 가져오기
                     val priceValue = priceEditText.text.toString()
+                    val priceInt = if (priceValue.startsWith("-")) { // 가격 숫자 정보만 넣기
+                        val priceDigits = priceValue.replace(Regex("[^0-9]"), "")
+                        -priceDigits.toInt()
+                    } else {
+                        priceValue.replace(Regex("[^0-9]"), "").toInt()
+                    }
                     val priceDate = dateTextView.text.toString() // 날짜 정보
                     val priceModel = PriceModel(priceDate, priceTitle, priceCategory, priceValue)
                     var subNum = 0
 
-                    val db = Firebase.database.getReference("togyether")
                     db.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             for (users in dataSnapshot.children) {
@@ -261,6 +306,80 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                             }
 
                             // 데이터베이스에 가계부 내역 추가
+                            if (priceInt < 0) {
+                                // 월별 expense 업데이트
+                                db.child(myUid).child("calendar")
+                                    .child(iYear.toString()).child(iMonth.toString()+"m").child("expense")
+                                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            val oldTotal = snapshot.getValue(Int::class.java) ?: 0
+
+                                            // 새로운 expense 값 계산
+                                            val newExpense = oldTotal + kotlin.math.abs(priceInt)
+
+                                            // expense 값 업데이트
+                                            db.child(myUid).child("calendar")
+                                                .child(iYear.toString()).child(iMonth.toString()+"m")
+                                                .child("expense")
+                                                .setValue(newExpense)
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {
+                                            // 처리 중 오류가 발생한 경우의 로직 추가
+                                        }
+                                    })
+                            } else {
+                                // 월별 income 업데이트
+                                db.child(myUid).child("calendar")
+                                    .child(iYear.toString()).child(iMonth.toString()+"m").child("income")
+                                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            val oldTotal = snapshot.getValue(Int::class.java) ?: 0
+
+                                            // 새로운 expense 값 계산
+                                            val newIncome = oldTotal + priceInt
+
+                                            // expense 값 업데이트
+                                            db.child(myUid).child("calendar")
+                                                .child(iYear.toString()).child(iMonth.toString()+"m")
+                                                .child("income")
+                                                .setValue(newIncome)
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {
+                                            // 처리 중 오류가 발생한 경우의 로직 추가
+                                        }
+                                    })
+                            }
+
+
+                            // total 업데이트
+                            db.child(myUid).child("calendar")
+                                .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("total")
+                                .addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onDataChange(snapshot: DataSnapshot) {
+                                        val oldTotal = snapshot.getValue(Int::class.java) ?: 0
+
+                                        // 새로운 total 값 계산
+                                        val newTotal = oldTotal + priceInt
+
+//                                        // totalSum에 금액 총합 정보 넣기
+//                                        val totalSum = view.findViewById<TextView>(R.id.total_sum)
+//                                        totalSum.text = newTotal.toString() // newTotal은 가져온 total 값
+
+
+                                        // total 값 업데이트
+                                        db.child(myUid).child("calendar")
+                                            .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d")
+                                            .child("total")
+                                            .setValue(newTotal)
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError) {
+                                        // 처리 중 오류가 발생한 경우의 로직 추가
+                                    }
+                                })
+
                             val priceEntry = db.child(myUid).child("calendar")
                                 .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child(subNum.toString())
                             priceEntry.child("category").setValue(priceCategory)
@@ -271,29 +390,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                             // num 값 1 증가
                             db.child(myUid).child("calendar")
                                 .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("num").setValue(subNum+1)
-
-//                            // 가계부 내역을 불러와서 합산
-//                            val totalRef = db.child(myUid).child("calendar")
-//                                .child(iYear.toString()).child(iMonth.toString()+"m").child(iDay.toString()+"d").child("total")
-//                            totalRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//                                override fun onDataChange(snapshot: DataSnapshot) {
-//                                    val totalPrice = dataSnapshot.getValue(Int::class.java)
-//                                    if (totalPrice != null) {
-//                                        val priceNumber = priceEditText.text.toString().replace("원", "").replace(",", "").toInt()
-//                                        val updatedTotal = totalPrice + priceNumber
-//                                        totalRef.setValue(updatedTotal)
-//
-//                                        // totalSum
-//                                        val totalSum = view.findViewById<TextView>(R.id.total_sum)
-//                                        totalSum.text = updatedTotal.toString()
-//                                    }
-//                                }
-//
-//                                override fun onCancelled(error: DatabaseError) {
-//                                    TODO("Not yet implemented")
-//                                }
-//
-//                            })
 
                             priceList.add(priceModel)
                             priceAdapter.notifyItemInserted(priceList.size - 1)
@@ -313,6 +409,27 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                 // totalDialog에 아이템 개수 설정
                                 val totalDialog = view.findViewById<TextView>(R.id.totalDialog)
                                 totalDialog.text = size.toString()
+
+                                // totalSum에 금액 총합 정보 넣기
+                                val totalSum = view.findViewById<TextView>(R.id.total_sum)
+                                db.addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                        for (users in dataSnapshot.children) {
+                                            val uid = users.child("uid").value.toString()
+
+                                            if (myUid == uid) {
+                                                val total = users.child("calendar").child(iYear.toString())
+                                                    .child(iMonth.toString()+"m").child(iDay.toString()+"d")
+                                                    .child("total").value.toString()
+                                                totalSum.text = total
+                                            }
+                                        }
+                                    }
+
+                                    override fun onCancelled(databaseError: DatabaseError) {
+                                        // Error handling
+                                    }
+                                })
                             }
 
                             // BottomSheetDialog 표시
