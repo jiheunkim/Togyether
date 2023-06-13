@@ -84,43 +84,57 @@ class CalenderFragment : Fragment() {
         myUid = FirebaseAuth.getInstance().currentUser?.uid!!
 
         val db = Firebase.database.getReference("togyether")
-        db.addListenerForSingleValueEvent(object : ValueEventListener {
+
+        // ValueEventListener 생성
+        val valueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (users in dataSnapshot.children) {
-                    val uid = users.child("uid").value.toString()
+                // 데이터베이스의 값이 변경되었을 때 실행되는 로직을 여기에 작성
+                db.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for (users in dataSnapshot.children) {
+                            val uid = users.child("uid").value.toString()
 
-                    if (myUid == uid) {
-                        when (setMonth) {
-                            "JANUARY" -> getMonth = "1m"
-                            "FEBRUARY" -> getMonth = "2m"
-                            "MARCH" -> getMonth = "3m"
-                            "APRIL" -> getMonth = "4m"
-                            "MAY" -> getMonth = "5m"
-                            "JUNE" -> getMonth = "6m"
-                            "JULY" -> getMonth = "7m"
-                            "AUGUST" -> getMonth = "8m"
-                            "SEPTEMBER" -> getMonth = "9m"
-                            "OCTOBER" -> getMonth = "10m"
-                            "NOVEMBER" -> getMonth = "11m"
-                            "DECEMBER" -> getMonth = "12m"
+                            if (myUid == uid) {
+                                when (setMonth) {
+                                    "JANUARY" -> getMonth = "1m"
+                                    "FEBRUARY" -> getMonth = "2m"
+                                    "MARCH" -> getMonth = "3m"
+                                    "APRIL" -> getMonth = "4m"
+                                    "MAY" -> getMonth = "5m"
+                                    "JUNE" -> getMonth = "6m"
+                                    "JULY" -> getMonth = "7m"
+                                    "AUGUST" -> getMonth = "8m"
+                                    "SEPTEMBER" -> getMonth = "9m"
+                                    "OCTOBER" -> getMonth = "10m"
+                                    "NOVEMBER" -> getMonth = "11m"
+                                    "DECEMBER" -> getMonth = "12m"
+                                }
+                                val spent = users.child("calendar").child("2023").child(getMonth).child("expense").value.toString()
+                                val income = users.child("calendar").child("2023").child(getMonth).child("income").value.toString()
+                                val budget = users.child("calendar").child("2023").child(getMonth).child("budget").value.toString()
+
+                                val numberFormat = NumberFormat.getInstance(Locale.getDefault())
+
+                                binding.spentMoney.text = numberFormat.format(spent.toInt())
+                                binding.incomeMoney.text = numberFormat.format(income.toInt())
+                                binding.planMoney.text = numberFormat.format(budget.toInt())
+                            }
                         }
-                        val spent = users.child("calendar").child("2023").child(getMonth).child("expense").value.toString()
-                        val income = users.child("calendar").child("2023").child(getMonth).child("income").value.toString()
-                        val budget = users.child("calendar").child("2023").child(getMonth).child("budget").value.toString()
-
-                        val numberFormat = NumberFormat.getInstance(Locale.getDefault())
-
-                        binding.spentMoney.text = numberFormat.format(spent.toInt())
-                        binding.incomeMoney.text = numberFormat.format(income.toInt())
-                        binding.planMoney.text = numberFormat.format(budget.toInt())
                     }
-                }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        // Error handling
+                    }
+                })
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Error handling
+                // 에러 처리
             }
-        })
+        }
+
+        // ValueEventListener를 addValueEventListener로 등록하여 데이터의 변화를 감지합니다.
+        db.addValueEventListener(valueEventListener)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
