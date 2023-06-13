@@ -22,7 +22,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-// TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -142,14 +141,12 @@ class CalenderFragment : Fragment() {
 
         selectedDate = LocalDate.now() // 현재 날짜
         setMonth = selectedDate.month.toString()
-//        calendarFromFirebase() // 달력 월금액 정보 가져오기
         setMonthView() // 월 이동
 
         binding.lastMonth.setOnClickListener {
             // 이전 달 버튼 이벤트
             selectedDate = selectedDate.minusMonths(1)
             setMonth = selectedDate.month.toString()
-//            calendarFromFirebase() // 달력 월금액 정보 가져오기
             setMonthView()
         }
 
@@ -157,7 +154,6 @@ class CalenderFragment : Fragment() {
             // 다음 달 버튼 이벤트
             selectedDate = selectedDate.plusMonths(1)
             setMonth = selectedDate.month.toString()
-//            calendarFromFirebase() // 달력 월금액 정보 가져오기
             setMonthView()
         }
     }
@@ -178,7 +174,6 @@ class CalenderFragment : Fragment() {
 
     private fun monthYearFromDate(date: LocalDate): String {
         var formatter = DateTimeFormatter.ofPattern("MM월 yyyy")
-
         return date.format(formatter)
     }
 
@@ -208,15 +203,6 @@ class CalenderFragment : Fragment() {
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CalenderFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             CalenderFragment().apply {
