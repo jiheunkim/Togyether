@@ -94,6 +94,8 @@ class JoinActivity : AppCompatActivity() {
                                     val days30 = days28 + arrayOf("29d", "30d")
                                     val days31 = days30 + arrayOf("31d")
 
+                                    userEntry.child("calendar").child("sum").setValue(0)
+
                                     // 월별 데이터 초기화
                                     for (month in months) {
                                         val monthEntry = userEntry.child("calendar").child(year).child(month)

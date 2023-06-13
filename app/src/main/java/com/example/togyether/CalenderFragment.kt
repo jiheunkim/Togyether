@@ -111,12 +111,13 @@ class CalenderFragment : Fragment() {
                                 val spent = users.child("calendar").child("2023").child(getMonth).child("expense").value.toString()
                                 val income = users.child("calendar").child("2023").child(getMonth).child("income").value.toString()
                                 val budget = users.child("calendar").child("2023").child(getMonth).child("budget").value.toString()
-
+                                val sum = users.child("calendar").child("sum").value.toString()
                                 val numberFormat = NumberFormat.getInstance(Locale.getDefault())
 
                                 binding.spentMoney.text = numberFormat.format(spent.toInt())
                                 binding.incomeMoney.text = numberFormat.format(income.toInt())
                                 binding.planMoney.text = numberFormat.format(budget.toInt())
+                                binding.sumEvery.text = numberFormat.format(sum.toInt())
                             }
                         }
                     }

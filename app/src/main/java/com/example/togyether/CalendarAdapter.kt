@@ -366,6 +366,25 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                 }
 
                                 // 데이터베이스에 가계부 내역 추가
+                                // sum 값 업데이트
+                                val sumRef = db.child(myUid).child("calendar").child("sum")
+                                db.child(myUid).child("calendar")
+                                    .child("sum")
+                                    .addListenerForSingleValueEvent(object :
+                                        ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            val oldSum =
+                                                snapshot.getValue(Int::class.java)
+                                                    ?: 0
+                                            val sum = oldSum + priceInt
+                                            sumRef.setValue(sum)
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {
+                                            TODO("Not yet implemented")
+                                        }
+                                    })
+
                                 if (priceInt < 0) {
                                     // 월별 expense 업데이트
                                     db.child(myUid).child("calendar")
@@ -388,9 +407,8 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                                     .child("expense")
                                                     .setValue(newExpense)
                                             }
-
                                             override fun onCancelled(error: DatabaseError) {
-                                                // 처리 중 오류가 발생한 경우의 로직 추가
+                                                TODO("Not yet implemented")
                                             }
                                         })
                                 } else {
@@ -404,10 +422,10 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                                 val oldTotal =
                                                     snapshot.getValue(Int::class.java) ?: 0
 
-                                                // 새로운 expense 값 계산
+                                                // 새로운 income 값 계산
                                                 val newIncome = oldTotal + priceInt
 
-                                                // expense 값 업데이트
+                                                // income 값 업데이트
                                                 db.child(myUid).child("calendar")
                                                     .child(iYear.toString())
                                                     .child(iMonth.toString() + "m")
@@ -421,7 +439,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                         })
                                 }
 
-
                                 // total 업데이트
                                 db.child(myUid).child("calendar")
                                     .child(iYear.toString()).child(iMonth.toString() + "m")
@@ -432,11 +449,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
 
                                             // 새로운 total 값 계산
                                             val newTotal = oldTotal + priceInt
-
-//                                        // totalSum에 금액 총합 정보 넣기
-//                                        val totalSum = view.findViewById<TextView>(R.id.total_sum)
-//                                        totalSum.text = newTotal.toString() // newTotal은 가져온 total 값
-
 
                                             // total 값 업데이트
                                             db.child(myUid).child("calendar")
