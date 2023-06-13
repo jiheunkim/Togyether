@@ -1,3 +1,4 @@
+// DutchpayFrameFragment.kt
 package com.example.togyether
 
 import android.content.Context
@@ -7,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import com.example.togyether.databinding.FragmentDutchpayBinding
 import com.example.togyether.databinding.FragmentDutchpayFrameBinding
 import com.google.android.material.tabs.TabLayoutMediator
@@ -17,8 +17,6 @@ class DutchpayFrameFragment : Fragment() {
     lateinit var dActivity: MainActivity
 
     var dutchpayFragment = DutchpayFragment()
-    var addGroupFragment = AddGroupFragment()
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -33,9 +31,7 @@ class DutchpayFrameFragment : Fragment() {
         val view = binding.root
         with(view) {
             childFragmentManager.beginTransaction().apply {
-                add(R.id.root_fragment, dutchpayFragment, "dutch")
-                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                addToBackStack(null)
+                replace(R.id.root_fragment, dutchpayFragment)
                 commit()
             }
         }
