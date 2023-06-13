@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="6dp"
     tools:context=".CategoryFragment">
 
     <ImageView
@@ -13,5 +13,120 @@
         android:layout_height="55dp"
         android:layout_gravity="center"
         android:src="@drawable/logo" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/pie_chart"
+        android:layout_width="230dp"
+        android:layout_height="230dp"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/text_category1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="카테고리 1"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_amount1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="금액 1"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_category2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="카테고리 2"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_amount2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="금액 2"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_category3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="카테고리 3"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_amount3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="금액 3"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_category4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="카테고리 4"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_amount4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="금액 4"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_category5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="카테고리 5"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_amount5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="금액 5"
+        android:textSize="13sp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/editText_amount"
+            android:layout_width="306dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:hint="금액을 입력하세요."
+            android:inputType="numberDecimal" />
+
+        <Button
+            android:id="@+id/button_add"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:text="추가" />
+    </LinearLayout>
+
+
 
 </LinearLayout>
