@@ -10,14 +10,23 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.togyether.databinding.FragmentDutchpayGroupBinding
 
-class DutchpayGroupFragment : Fragment() {
+class DutchpayGroupFragment(var nameList:ArrayList<String>) : Fragment() {
     lateinit var binding: FragmentDutchpayGroupBinding
     lateinit var memberAdapter: memberAdapter
     lateinit var spendingAdapter: spendingAdapter
     lateinit var transferAdapter: transferAdapter
-    var memberList = ArrayList<memberData>();
+
     var spendingList = ArrayList<spendingData>();
     var transferList = ArrayList<transferData>();
+
+    companion object Static{
+        var spendCnt = 0
+        var spendingTitleList = ArrayList<String>()
+        var timeList = ArrayList<String>()
+        var amountList = ArrayList<Int>()
+        val spendingNameList = ArrayList<String>()
+        val memberList = ArrayList<ArrayList<String>>()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,11 +54,52 @@ class DutchpayGroupFragment : Fragment() {
             Log.i("init", "init")
         }
 
-        binding.addSpendingBtn.setOnClickListener(){
+        arguments?.let {
+            // 새로 추가할 그룹 정보 수신
+            val spendingTitle = it.getString("spendingTitle")!!
+            val spendingTime = it.getString("spendingTime")!!
+            val spendingAmount = it.getInt("spendingAmount")!!
+            val spendingName = it.getString("spendingName")!!
 
+            val spendingMembers = ArrayList<String>()
+            for(i in 0 until nameList.size-1){
+                val key = "member${i}"
+                it.getString(key)?.let { member -> spendingMembers.add(member) }
+            }
+
+            // 기존 그룹 + 신규 그룹 Adapter에 추가
+            spendCnt++
+            spendingTitleList.add(spendingTitle)
+            timeList.add(spendingTime)
+            amountList.add(spendingAmount)
+            spendingNameList.add(spendingName)
+            memberList.add(spendingMembers)
+
+            for(i in 0 until DutchpayFragment.groupSize){
+                spendingAdapter.items.add(spendingData(spendingTitleList[i], timeList[i],
+                    spendingNameList[i], amountList[i], memberList[i]))
+            }
+
+            spendingAdapter.notifyDataSetChanged()
         }
 
+        binding.addSpendingBtn.setOnClickListener(){
+            // DutchpayFragment -> AddGroupFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.root_fragment, AddSpendingFragment(nameList))
+                .commit()
+        }
+
+
+        init()
         return view
+    }
+
+    private fun init(){
+        for(i in nameList){
+            memberAdapter.items.add(memberData(i,0,0))
+        }
+        memberAdapter.notifyDataSetChanged()
     }
 }
 
