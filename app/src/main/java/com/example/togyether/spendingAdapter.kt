@@ -1,5 +1,5 @@
 package com.example.togyether
-
+ 
 import android.graphics.Color
 import android.util.DisplayMetrics
 import android.view.Gravity
