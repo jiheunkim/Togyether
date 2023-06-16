@@ -37,6 +37,7 @@ class spendingAdapter (var items:ArrayList<spendingData>)
         holder.binding.time.text=items[position].time
         holder.binding.name.text=items[position].name
         holder.binding.amount.text=items[position].amount.toString()
+        holder.binding.spendingMember.text=items[position].group[0].name.toString() + " 외 " + items[position].group.size + "명"
     }
 
 
