@@ -14,6 +14,14 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentResultListener
 import com.example.togyether.databinding.FragmentDutchpayBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DutchpayFragment : Fragment() {
     lateinit var binding: FragmentDutchpayBinding
@@ -52,6 +60,51 @@ class DutchpayFragment : Fragment() {
 //        if(arguments == null){
 //            Toast.makeText(requireContext(), "arguments null", Toast.LENGTH_SHORT).show()
 //        }
+
+        // 파이어베이스에 있는 코드 읽어오기 (시간 차가 발생하여 제대로 기능 x)
+//        if(arguments == null) {
+//            val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+//            val db = Firebase.database.getReference("togyether/$myUid/dutchpay")
+//            db.addListenerForSingleValueEvent(object : ValueEventListener {
+//                override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                    for (group in dataSnapshot.children) {
+//                        groupSize++
+//                        groupNameList.add(group.key!!)
+//                        Toast.makeText(requireContext(), groupNameList.size.toString(), Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//                    println("Data read cancelled or failed: ${error.message}")
+//                }
+//            })
+//            Log.d("TempTest", groupSize.toString())
+//
+//            for(groupName in groupNameList){
+//                val cnt = 0
+//                val ref = db.child(groupName).child("member")
+//                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+//                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                        for (memberName in dataSnapshot.children) {
+//                            Log.d("memberName", memberName.key!!)
+//                            val data = ref.child(memberName.key!!)
+//                            for(temp in memberName.children){
+//                                println("Temp1Test:${temp.key}")
+//                            }
+//                            println("Temptest\n")
+////                        val member = memberData(memberName.key!!,
+////                            data.key.toString().toInt(),
+//
+//                        }
+//                    }
+//
+//                    override fun onCancelled(error: DatabaseError) {
+//                        println("Data read cancelled or failed: ${error.message}")
+//                    }
+//                })
+//            }
+//        }
+
         arguments?.let {
             // 새로 추가할 그룹 정보 수신
             val groupName = it.getString("group_name")!!
@@ -65,16 +118,27 @@ class DutchpayFragment : Fragment() {
 //                Log.d("check_member$i", i)
 //            }
 
+            // 새로 추가한 그룹 정보 데이터베이스에 추가
+            val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+            val db = Firebase.database.getReference("togyether/$myUid/dutchpay")
+            db.child(groupName).setValue("")
+            for(member in groupMembersNames){
+                val ref = db.child(groupName).child("member").child(member)
+                ref.child("지출").setValue(0)
+                ref.child("송금").setValue("")
+            }
+
             // 기존 그룹 + 신규 그룹 Adapter에 추가
             groupSize++
             groupNameList.add(groupName)
             val groupMemberList = ArrayList<memberData>()
-            val transferList=ArrayList<Int>()
+
             for(i in 0 until groupMembersNames.size){
-                transferList.add(0)
-            }
-            for(i in 0 until groupMembersNames.size){
-                groupMemberList.add(memberData(groupMembersNames[i],0, transferList))
+                val transferList=ArrayList<Long>()
+                for(i in 0 until groupMembersNames.size){
+                    transferList.add(0)
+                }
+                groupMemberList.add(memberData(groupMembersNames[i], i,0, transferList))
             }
             memberListList.add(groupMemberList)
             spendingListList.add(ArrayList())

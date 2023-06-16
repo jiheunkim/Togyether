@@ -67,14 +67,17 @@ class AddSpendingFragment(var groupNum:Int) : Fragment() {
             val bundle = Bundle()
             bundle.putString("spendingTitle", binding.spendingTitle.text.toString())
             bundle.putString("spendingTime", binding.spendingTime.text.toString())
-            bundle.putInt("spendingAmount", binding.spendingAmount.text.toString().toInt())
-            bundle.putString("spendingName", binding.spendingName.selectedItem.toString())
+            bundle.putLong("spendingAmount", binding.spendingAmount.text.toString().toLong())
+            bundle.putInt("spendingName", binding.spendingName.selectedItemPosition)
+            var cnt = 0
             for(i:Int in 1..memberListList[groupNum].size){
                 if(view?.findViewById<CheckBox>(i)!!.isChecked){
                     Log.i("checkbox", i.toString())
                     bundle.putInt("member$i", i)
+                    cnt++
                 }
             }
+            bundle.putInt("spendingCnt", cnt)
             val fragment = DutchpayGroupFragment(groupNum)
             fragment.arguments = bundle
 

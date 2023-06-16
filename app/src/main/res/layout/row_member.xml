@@ -8,11 +8,13 @@
     android:orientation="horizontal">
 
     <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn"
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:layout_gravity="center_vertical"
         android:background="@drawable/btn_circle_blue"
         tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
 
     <TextView
         android:id="@+id/name"
