@@ -1,96 +1,97 @@
 package com.example.togyether
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentResultListener
-import com.example.togyether.databinding.FragmentDutchpayBinding
-import com.google.android.material.tabs.TabLayoutMediator
+import android.widget.ArrayAdapter
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.togyether.databinding.FragmentAddGroupBinding
+import com.example.togyether.databinding.FragmentAddSpendingBinding
+import com.example.togyether.databinding.FragmentDutchpayGroupBinding
 
-class DutchpayFragment : Fragment() {
-    lateinit var binding: FragmentDutchpayBinding
-    lateinit var dActivity: MainActivity
-    lateinit var adapter: DutchpayPageAdapter
-
-    companion object Static{
-        var groupSize = 0
-        val groupMemberListList = ArrayList<ArrayList<memberData>>()
-        val groupNameList = ArrayList<String>()
-    }
+class AddSpendingFragment(var memberList:ArrayList<memberData>) : Fragment() {
+    lateinit var binding: FragmentAddSpendingBinding
+    lateinit var sActivity: MainActivity
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        dActivity = context as MainActivity
+        sActivity = context as MainActivity
     }
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDutchpayBinding.inflate(layoutInflater, container, false)
-        val view = binding.root
-        with(view) {
-            adapter = DutchpayPageAdapter(dActivity)
-            binding.viewPager.adapter = adapter
-            TabLayoutMediator(binding.tabLayout, binding.viewPager){
-                    tab , pos ->
-                tab.text = groupNameList[pos]
-            }.attach()
+        binding = FragmentAddSpendingBinding.inflate(layoutInflater)
+        var groupMemberNum = 0
+        var count = 0
+
+        for(i:Int in 1..memberList.size){
+
+            val checkBox = CheckBox(requireContext())
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                changeDP(47)
+            )
+            layoutParams.setMargins(0, changeDP(5), 0 ,0)
+            checkBox.setBackgroundResource(R.drawable.edittext)
+            checkBox.setEms(10)
+            checkBox.text = memberList[i-1].name
+            checkBox.setPadding(changeDP(15), 0, 0, 0)
+            checkBox.layoutParams = layoutParams
+            checkBox.id = i
+            binding.spendingMember.addView(checkBox)
         }
 
-        // arguments가 null이면 블록 내부로 진입 X
-        Log.d("size", arguments?.size().toString())
-//        if(arguments == null){
-//            Toast.makeText(requireContext(), "arguments null", Toast.LENGTH_SHORT).show()
-//        }
-        arguments?.let {
-            // 새로 추가할 그룹 정보 수신
-            val groupName = it.getString("group_name")!!
-//            Toast.makeText(requireContext(), groupName, Toast.LENGTH_SHORT).show()
-            val groupMembersNames = ArrayList<String>()
-            for(i in 1 until it.size()){
-                val key = "member${i}"
-                it.getString(key)?.let { member -> groupMembersNames.add(member) }
-            }
-//            for(i in groupMembers){
-//                Log.d("check_member$i", i)
-//            }
-
-            // 기존 그룹 + 신규 그룹 Adapter에 추가
-            groupSize++
-            groupNameList.add(groupName)
-            val groupMemberList = ArrayList<memberData>()
-            val transferList=ArrayList<Int>()
-            for(i in 0 until groupMembersNames.size){
-                transferList.add(0)
-            }
-            for(i in 0 until groupMembersNames.size){
-                groupMemberList.add(memberData(groupMembersNames[i],0, transferList))
-            }
-            groupMemberListList.add(groupMemberList)
-
-            for(i in 0 until groupSize){
-                adapter.addFragment(groupNameList[i], groupMemberListList[i])
-            }
-
-            adapter.notifyDataSetChanged()
+        val nameList=ArrayList<String>()
+        for(i in 0..memberList.size -1){
+            nameList.add(memberList[i].name)
         }
+        val adapter = ArrayAdapter(sActivity, R.layout.row_spinner, nameList)
+        Thread(Runnable{
+            sActivity?.runOnUiThread {
+                binding.spendingName.adapter = adapter
+                binding.spendingName.setSelection(0)
+            }
+        }).start()
 
-        binding.addBtn.setOnClickListener(){
-            // DutchpayFragment -> AddGroupFragment
+
+        binding.completionBtn.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("spendingTitle", binding.spendingTitle.text.toString())
+            bundle.putString("spendingTime", binding.spendingTime.text.toString())
+            bundle.putInt("spendingAmount", binding.spendingAmount.text.toString().toInt())
+            bundle.putString("spendingName", binding.spendingName.selectedItem.toString())
+            for(i:Int in 1..memberList.size){
+                if(view?.findViewById<CheckBox>(i)!!.isChecked){
+                    Log.i("checkbox", i.toString())
+                    bundle.putInt("member$i", i)
+                }
+            }
+            val fragment = DutchpayGroupFragment(memberList)
+            fragment.arguments = bundle
+
             parentFragmentManager.beginTransaction()
-                .replace(R.id.root_fragment, AddGroupFragment())
+                .replace(R.id.root_fragment, fragment)
                 .commit()
         }
-        return view
+        return binding.root
     }
 
+    // int to dp
+    private fun changeDP(value: Int): Int {
+        var displayMetrics = resources.displayMetrics
+        var dp = Math.round(value * displayMetrics.density)
+        return dp
+    }
 }
