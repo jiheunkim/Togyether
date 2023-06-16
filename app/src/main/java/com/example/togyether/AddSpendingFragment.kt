@@ -9,16 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.togyether.databinding.FragmentAddGroupBinding
+import com.example.togyether.DutchpayFragment.Static.memberListList
+import com.example.togyether.DutchpayFragment.Static.spendingListList
 import com.example.togyether.databinding.FragmentAddSpendingBinding
-import com.example.togyether.databinding.FragmentDutchpayGroupBinding
 
-class AddSpendingFragment(var memberList:ArrayList<memberData>) : Fragment() {
+class AddSpendingFragment(var groupNum:Int) : Fragment() {
     lateinit var binding: FragmentAddSpendingBinding
     lateinit var sActivity: MainActivity
 
@@ -36,7 +33,7 @@ class AddSpendingFragment(var memberList:ArrayList<memberData>) : Fragment() {
         var groupMemberNum = 0
         var count = 0
 
-        for(i:Int in 1..memberList.size){
+        for(i:Int in 1..memberListList[groupNum].size){
 
             val checkBox = CheckBox(requireContext())
             val layoutParams = LinearLayout.LayoutParams(
@@ -46,7 +43,7 @@ class AddSpendingFragment(var memberList:ArrayList<memberData>) : Fragment() {
             layoutParams.setMargins(0, changeDP(5), 0 ,0)
             checkBox.setBackgroundResource(R.drawable.edittext)
             checkBox.setEms(10)
-            checkBox.text = memberList[i-1].name
+            checkBox.text = memberListList[groupNum][i-1].name
             checkBox.setPadding(changeDP(15), 0, 0, 0)
             checkBox.layoutParams = layoutParams
             checkBox.id = i
@@ -54,8 +51,8 @@ class AddSpendingFragment(var memberList:ArrayList<memberData>) : Fragment() {
         }
 
         val nameList=ArrayList<String>()
-        for(i in 0..memberList.size -1){
-            nameList.add(memberList[i].name)
+        for(i in 0..memberListList[groupNum].size -1){
+            nameList.add(memberListList[groupNum][i].name)
         }
         val adapter = ArrayAdapter(sActivity, R.layout.row_spinner, nameList)
         Thread(Runnable{
@@ -72,13 +69,13 @@ class AddSpendingFragment(var memberList:ArrayList<memberData>) : Fragment() {
             bundle.putString("spendingTime", binding.spendingTime.text.toString())
             bundle.putInt("spendingAmount", binding.spendingAmount.text.toString().toInt())
             bundle.putString("spendingName", binding.spendingName.selectedItem.toString())
-            for(i:Int in 1..memberList.size){
+            for(i:Int in 1..memberListList[groupNum].size){
                 if(view?.findViewById<CheckBox>(i)!!.isChecked){
                     Log.i("checkbox", i.toString())
                     bundle.putInt("member$i", i)
                 }
             }
-            val fragment = DutchpayGroupFragment(memberList)
+            val fragment = DutchpayGroupFragment(groupNum)
             fragment.arguments = bundle
 
             parentFragmentManager.beginTransaction()
