@@ -49,7 +49,6 @@ class AddSpendingFragment(var groupNum:Int) : Fragment() {
             checkBox.id = i
             binding.spendingMember.addView(checkBox)
         }
-        val colorList = resources.getStringArray(R.array.memberColor)
 
         val nameList=ArrayList<String>()
         for(i in 0..memberListList[groupNum].size -1){
