@@ -69,12 +69,13 @@ class DutchpayFragment : Fragment() {
             groupSize++
             groupNameList.add(groupName)
             val groupMemberList = ArrayList<memberData>()
-            val transferList=ArrayList<Int>()
+
             for(i in 0 until groupMembersNames.size){
-                transferList.add(0)
-            }
-            for(i in 0 until groupMembersNames.size){
-                groupMemberList.add(memberData(groupMembersNames[i],0, transferList))
+                val transferList=ArrayList<Long>()
+                for(i in 0 until groupMembersNames.size){
+                    transferList.add(0)
+                }
+                groupMemberList.add(memberData(groupMembersNames[i], i,0, transferList))
             }
             memberListList.add(groupMemberList)
             spendingListList.add(ArrayList())
