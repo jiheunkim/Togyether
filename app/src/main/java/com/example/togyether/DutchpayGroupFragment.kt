@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.togyether.DutchpayFragment.Static.memberListList
+import com.example.togyether.DutchpayFragment.Static.spendingListList
 import com.example.togyether.databinding.FragmentDutchpayGroupBinding
 
-class DutchpayGroupFragment(var memberList:ArrayList<memberData>) : Fragment() {
+class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
     lateinit var binding: FragmentDutchpayGroupBinding
     lateinit var memberAdapter: memberAdapter
     lateinit var spendingAdapter: spendingAdapter
@@ -20,7 +22,7 @@ class DutchpayGroupFragment(var memberList:ArrayList<memberData>) : Fragment() {
 
     companion object Static{
         var spendCnt = 0
-        var spendingList = ArrayList<spendingData>();
+        //var spendingList = ArrayList<spendingData>();
 
 
         var spendingTitleList = ArrayList<String>()
@@ -64,23 +66,18 @@ class DutchpayGroupFragment(var memberList:ArrayList<memberData>) : Fragment() {
             val spendingName = it.getString("spendingName")!!
 
             val spendingMembers = ArrayList<memberData>()
-            for(i in 1 .. memberList.size){
+            for(i in 1 .. memberListList[groupNum].size){
                 val key = "member${i}"
                 it.getInt(key)?.let {
-                        memberNum -> if(i==memberNum){
-                    spendingMembers.add(memberList[memberNum-1])
-                    Log.i("sm", memberList[memberNum-1].name)
-                    Log.i("sm", memberNum.toString())
-                    Log.i("key", key)
-                        }
+                        memberNum -> if(i==memberNum){ spendingMembers.add(memberListList[groupNum][memberNum-1])}
                 }
 
             }
 
             // 기존 그룹 + 신규 그룹 Adapter에 추가
             spendCnt++
-            spendingList.add(spendingData(spendingTitle, spendingTime, spendingAmount, spendingName, spendingMembers))
-            spendingAdapter.items = spendingList
+            spendingListList[groupNum].add(spendingData(spendingTitle, spendingTime, spendingAmount, spendingName, spendingMembers))
+            spendingAdapter.items = spendingListList[groupNum]
             spendingAdapter.notifyDataSetChanged()
 
         }
@@ -88,7 +85,7 @@ class DutchpayGroupFragment(var memberList:ArrayList<memberData>) : Fragment() {
         binding.addSpendingBtn.setOnClickListener(){
             // DutchpayFragment -> AddGroupFragment
             parentFragmentManager.beginTransaction()
-                .replace(R.id.root_fragment, AddSpendingFragment(memberList))
+                .replace(R.id.root_fragment, AddSpendingFragment(groupNum))
                 .commit()
         }
 
@@ -98,12 +95,12 @@ class DutchpayGroupFragment(var memberList:ArrayList<memberData>) : Fragment() {
     }
 
     private fun init(){
-        for(i in memberList){
+        for(i in memberListList[groupNum]){
             memberAdapter.items.add(i)
         }
         memberAdapter.notifyDataSetChanged()
 
-        spendingAdapter.items = spendingList
+        spendingAdapter.items = spendingListList[groupNum]
         spendingAdapter.notifyDataSetChanged()
     }
 }
