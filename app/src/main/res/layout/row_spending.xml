@@ -102,26 +102,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginEnd="14dp"
-            android:layout_marginBottom="3dp"
+
             android:layout_gravity="end">
-            <androidx.appcompat.widget.AppCompatButton
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginLeft="5dp"
-                android:background="@drawable/btn_circle_blue"
-                android:layout_gravity="center_vertical"/>
-            <androidx.appcompat.widget.AppCompatButton
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginLeft="5dp"
-                android:background="@drawable/btn_circle_blue"
-                android:layout_gravity="center_vertical"/>
-            <androidx.appcompat.widget.AppCompatButton
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginLeft="5dp"
-                android:background="@drawable/btn_circle_blue"
-                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/spending_member"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:fontFamily="@font/notosans_regular"
+                android:text=" OOO 외 0명"
+                android:textColor="#000000" />
         </LinearLayout>
 
     </LinearLayout>
