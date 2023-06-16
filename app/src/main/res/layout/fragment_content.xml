@@ -48,6 +48,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/sum_every"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
@@ -290,6 +291,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"/>
 
 </LinearLayout>
