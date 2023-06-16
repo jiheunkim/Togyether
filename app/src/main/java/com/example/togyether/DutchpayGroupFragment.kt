@@ -37,7 +37,7 @@ class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
             binding.recyclerView2.addItemDecoration(DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL))
             binding.recyclerView3.addItemDecoration(DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL))
 
-            memberAdapter = memberAdapter(ArrayList())
+            memberAdapter = memberAdapter(ArrayList(), groupNum)
             spendingAdapter = spendingAdapter(ArrayList(), groupNum, resources.displayMetrics)
             transferAdapter = transferAdapter(ArrayList(), groupNum)
 
