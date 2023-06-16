@@ -110,6 +110,16 @@ class DutchpayFragment : Fragment() {
 //                Log.d("check_member$i", i)
 //            }
 
+            // 새로 추가한 그룹 정보 데이터베이스에 추가
+            val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+            val db = Firebase.database.getReference("togyether/$myUid/dutchpay")
+            db.child(groupName).setValue("")
+            for(member in groupMembersNames){
+                val ref = db.child(groupName).child("member").child(member)
+                ref.child("지출").setValue(0)
+                ref.child("송금").setValue("")
+            }
+
             // 기존 그룹 + 신규 그룹 Adapter에 추가
             groupSize++
             groupNameList.add(groupName)
