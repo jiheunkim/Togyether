@@ -232,6 +232,14 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                     val priceEditText = secondView.findViewById<EditText>(R.id.price)
                     priceEditText.setText("")
 
+                    // 가계부 내역 추가 다이얼로그 스피너 초기화
+                    val spinner = secondView.findViewById<AppCompatSpinner>(R.id.category_spinner)
+                    val categories = listOf("식당", "카페", "생필품", "문화", "주거", "금융", "쇼핑", "교통", "여행")
+                    val categories2 = listOf("급여", "용돈", "금융수입", "기타수입")
+                    val categoryAdapter = CategoryAdapter(holder.itemView.context, categories)
+                    val categoryAdapter2 = CategoryAdapter2(holder.itemView.context, categories2)
+                    spinner.adapter = categoryAdapter
+
                     // 지출, 수입 버튼
                     val expensesBtn = secondView.findViewById<Button>(R.id.expenses_btn)
                     val incomeBtn = secondView.findViewById<Button>(R.id.income_btn)
@@ -247,6 +255,7 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                         expensesBtn.setBackgroundResource(R.drawable.btn_circle_green)
                         incomeBtn.setBackgroundResource(R.drawable.btn_circle_gray)
                         priceEditText.setText("")
+                        spinner.adapter = categoryAdapter
                     }
 
                     incomeBtn.setOnClickListener {
@@ -255,6 +264,7 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                         incomeBtn.setBackgroundResource(R.drawable.btn_circle_green)
                         expensesBtn.setBackgroundResource(R.drawable.btn_circle_gray)
                         priceEditText.setText("")
+                        spinner.adapter = categoryAdapter2
                     }
 
                     priceEditText.addTextChangedListener(object : TextWatcher {
@@ -321,12 +331,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                         // 가계부 내역 추가 다이얼로그 닫기
                         contentAddDialog.dismiss()
                     }
-
-                    // 가계부 내역 추가 다이얼로그 스피너 초기화
-                    val spinner = secondView.findViewById<AppCompatSpinner>(R.id.category_spinner)
-                    val categories = listOf("식당", "카페", "생필품", "문화", "주거", "금융", "쇼핑", "교통", "여행")
-                    val categoryAdapter = CategoryAdapter(holder.itemView.context, categories)
-                    spinner.adapter = categoryAdapter
 
                     // btn_content 클릭 이벤트
                     val btnCotent = secondView.findViewById<Button>(R.id.btn_content)

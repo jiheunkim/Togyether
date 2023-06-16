@@ -51,6 +51,10 @@ class PriceAdapter(private val priceList: MutableList<PriceModel>) : RecyclerVie
             "쇼핑" -> R.drawable.category_shopping
             "교통" -> R.drawable.category_traffic
             "여행" -> R.drawable.category_travel
+            "급여" -> R.drawable.category_money
+            "용돈" -> R.drawable.category_money
+            "금융수입" -> R.drawable.category_money
+            "기타수입" -> R.drawable.category_money
             else -> R.drawable.category_food
         }
     }
