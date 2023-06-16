@@ -1,3 +1,3 @@
 package com.example.togyether
 
-class transferData (var sender:String, var receiver:String, var amount: Int)
+class transferData (var senderNum:Int, var receiverNum:Int, var amount: Long)
