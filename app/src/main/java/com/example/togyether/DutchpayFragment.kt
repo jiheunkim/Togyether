@@ -52,6 +52,51 @@ class DutchpayFragment : Fragment() {
 //        if(arguments == null){
 //            Toast.makeText(requireContext(), "arguments null", Toast.LENGTH_SHORT).show()
 //        }
+
+        // 파이어베이스에 있는 코드 읽어오기 (시간 차가 발생하여 제대로 기능 x)
+//        if(arguments == null) {
+//            val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+//            val db = Firebase.database.getReference("togyether/$myUid/dutchpay")
+//            db.addListenerForSingleValueEvent(object : ValueEventListener {
+//                override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                    for (group in dataSnapshot.children) {
+//                        groupSize++
+//                        groupNameList.add(group.key!!)
+//                        Toast.makeText(requireContext(), groupNameList.size.toString(), Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//                    println("Data read cancelled or failed: ${error.message}")
+//                }
+//            })
+//            Log.d("TempTest", groupSize.toString())
+//
+//            for(groupName in groupNameList){
+//                val cnt = 0
+//                val ref = db.child(groupName).child("member")
+//                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+//                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                        for (memberName in dataSnapshot.children) {
+//                            Log.d("memberName", memberName.key!!)
+//                            val data = ref.child(memberName.key!!)
+//                            for(temp in memberName.children){
+//                                println("Temp1Test:${temp.key}")
+//                            }
+//                            println("Temptest\n")
+////                        val member = memberData(memberName.key!!,
+////                            data.key.toString().toInt(),
+//
+//                        }
+//                    }
+//
+//                    override fun onCancelled(error: DatabaseError) {
+//                        println("Data read cancelled or failed: ${error.message}")
+//                    }
+//                })
+//            }
+//        }
+
         arguments?.let {
             // 새로 추가할 그룹 정보 수신
             val groupName = it.getString("group_name")!!
