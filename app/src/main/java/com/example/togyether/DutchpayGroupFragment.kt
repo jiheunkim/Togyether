@@ -88,6 +88,18 @@ class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
             }
             transferAdapter.notifyDataSetChanged()
 
+            // 데이터베이스에 추가
+            val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+            val db = Firebase.database.getReference("togyether/$myUid/dutchpay")
+            val ref = db.child(DutchpayFragment.groupNameList[groupNum]).child("spending")
+            ref.child("지출").setValue(spendingTitle)
+            ref.child("날짜").setValue(spendingTime)
+            ref.child("금액").setValue(spendingAmount)
+            ref.child("결제자").setValue(spendingName)
+            for(member in spendingMembers){
+                ref.child("참가자").child(member.name).setValue("")
+            }
+            
             // 기존 그룹 + 신규 그룹 Adapter에 추가
             spendingListList[groupNum].add(spendingData(spendingTitle, spendingTime, spendingAmount, spendingNameNum, spendingMembers))
             spendingAdapter.items = spendingListList[groupNum]
