@@ -11,11 +11,11 @@
     import com.example.togyether.databinding.FragmentDutchpayGroupFrameBinding
 
 
-    class DutchpayGroupFrameFragment(var memberList: ArrayList<memberData>) : Fragment() {
+    class DutchpayGroupFrameFragment(var groupNum:Int) : Fragment() {
         lateinit var binding: FragmentDutchpayGroupFrameBinding
         lateinit var dActivity: MainActivity
 
-        var dutchpayGroupFragment = DutchpayGroupFragment(memberList)
+        var dutchpayGroupFragment = DutchpayGroupFragment(groupNum)
 
         override fun onAttach(context: Context) {
             super.onAttach(context)
