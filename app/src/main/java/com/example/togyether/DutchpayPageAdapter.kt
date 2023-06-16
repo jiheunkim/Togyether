@@ -16,7 +16,7 @@ class DutchpayPageAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
         return fragmentList[position]
     }
 
-    fun addFragment(title:String, memberList:ArrayList<String>){
+    fun addFragment(title:String, memberList:ArrayList<memberData>){
         fragmentList.add(DutchpayGroupFrameFragment(memberList))
         titleList.add(title)
     }
