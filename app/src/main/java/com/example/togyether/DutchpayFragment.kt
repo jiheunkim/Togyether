@@ -22,7 +22,7 @@ class DutchpayFragment : Fragment() {
 
     companion object Static{
         var groupSize = 0
-        val groupMemberList = ArrayList<ArrayList<String>>()
+        val groupMemberListList = ArrayList<ArrayList<memberData>>()
         val groupNameList = ArrayList<String>()
     }
 
@@ -55,10 +55,10 @@ class DutchpayFragment : Fragment() {
             // 새로 추가할 그룹 정보 수신
             val groupName = it.getString("group_name")!!
 //            Toast.makeText(requireContext(), groupName, Toast.LENGTH_SHORT).show()
-            val groupMembers = ArrayList<String>()
+            val groupMembersNames = ArrayList<String>()
             for(i in 1 until it.size()){
                 val key = "member${i}"
-                it.getString(key)?.let { member -> groupMembers.add(member) }
+                it.getString(key)?.let { member -> groupMembersNames.add(member) }
             }
 //            for(i in groupMembers){
 //                Log.d("check_member$i", i)
@@ -67,9 +67,18 @@ class DutchpayFragment : Fragment() {
             // 기존 그룹 + 신규 그룹 Adapter에 추가
             groupSize++
             groupNameList.add(groupName)
-            groupMemberList.add(groupMembers)
+            val groupMemberList = ArrayList<memberData>()
+            val transferList=ArrayList<Int>()
+            for(i in 0 until groupMembersNames.size){
+                transferList.add(0)
+            }
+            for(i in 0 until groupMembersNames.size){
+                groupMemberList.add(memberData(groupMembersNames[i],0, transferList))
+            }
+            groupMemberListList.add(groupMemberList)
+
             for(i in 0 until groupSize){
-                adapter.addFragment(groupNameList[i], groupMemberList[i])
+                adapter.addFragment(groupNameList[i], groupMemberListList[i])
             }
 
             adapter.notifyDataSetChanged()
