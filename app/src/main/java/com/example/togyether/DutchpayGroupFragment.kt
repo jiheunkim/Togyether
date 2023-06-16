@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.togyether.DutchpayFragment.Static.memberListList
 import com.example.togyether.DutchpayFragment.Static.spendingListList
 import com.example.togyether.databinding.FragmentDutchpayGroupBinding
-import com.github.mikephil.charting.utils.Utils.init
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
     lateinit var binding: FragmentDutchpayGroupBinding
