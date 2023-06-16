@@ -315,11 +315,11 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                     val dateTextView2 = secondView.findViewById<TextView>(R.id.date_text)
                     dateTextView2.text = yearMonth
 
-                    // 가계부 내역 추가 다이얼로그 고정지출 정보 받기
-                    val checkBox = secondView.findViewById<CheckBox>(R.id.cb_necessary)
-                    checkBox.setOnClickListener {
-                        //추가 구현
-                    }
+//                    // 가계부 내역 추가 다이얼로그 고정지출 정보 받기
+//                    val checkBox = secondView.findViewById<CheckBox>(R.id.cb_necessary)
+//                    checkBox.setOnClickListener {
+//                        //추가 구현
+//                    }
 
                     // 가계부 내역 추가 다이얼로그 표시
                     contentAddDialog.setContentView(secondView)
