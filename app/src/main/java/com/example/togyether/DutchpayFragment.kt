@@ -22,8 +22,9 @@ class DutchpayFragment : Fragment() {
 
     companion object Static{
         var groupSize = 0
-        val groupMemberListList = ArrayList<ArrayList<memberData>>()
         val groupNameList = ArrayList<String>()
+        val memberListList = ArrayList<ArrayList<memberData>>()
+        val spendingListList = ArrayList<ArrayList<spendingData>>()
     }
 
     override fun onAttach(context: Context) {
@@ -75,10 +76,11 @@ class DutchpayFragment : Fragment() {
             for(i in 0 until groupMembersNames.size){
                 groupMemberList.add(memberData(groupMembersNames[i],0, transferList))
             }
-            groupMemberListList.add(groupMemberList)
+            memberListList.add(groupMemberList)
+            spendingListList.add(ArrayList())
 
             for(i in 0 until groupSize){
-                adapter.addFragment(groupNameList[i], groupMemberListList[i])
+                adapter.addFragment(i)
             }
 
             adapter.notifyDataSetChanged()
