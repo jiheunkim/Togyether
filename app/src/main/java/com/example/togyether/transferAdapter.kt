@@ -39,9 +39,9 @@ class transferAdapter (var items:ArrayList<transferData>, var groupNum:Int)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.senderBtn.setBackgroundColor(Color.parseColor(colorList[(items[position].senderNum + 8 * groupNum) % 20]))
+        holder.binding.senderBtn.setBackgroundColor(Color.parseColor(colorList[(items[position].senderNum + 6 * groupNum) % 20]))
         holder.binding.sender.text=memberListList[groupNum][items[position].senderNum].name
-        holder.binding.receiverBtn.setBackgroundColor(Color.parseColor(colorList[(items[position].receiverNum + 8 * groupNum) % 20]))
+        holder.binding.receiverBtn.setBackgroundColor(Color.parseColor(colorList[(items[position].receiverNum + 6 * groupNum) % 20]))
         holder.binding.receiver.text=memberListList[groupNum][items[position].receiverNum].name
         holder.binding.amount.text=items[position].amount.toString()
     }
