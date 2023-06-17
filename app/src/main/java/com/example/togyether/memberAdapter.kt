@@ -42,7 +42,7 @@ class memberAdapter (var items:ArrayList<memberData>, var groupNum:Int)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
 
-        holder.binding.btn.setBackgroundColor(Color.parseColor(colorList[(position + 8 * groupNum) % 20]))
+        holder.binding.btn.setBackgroundColor(Color.parseColor(colorList[(position + 6 * groupNum) % 20]))
 
 
         holder.binding.name.text=items[position].name
