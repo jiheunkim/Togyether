@@ -44,12 +44,12 @@ class spendingAdapter (var items:ArrayList<spendingData>, var groupNum:Int, var 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.title.text=items[position].title
         holder.binding.time.text=items[position].time
-        holder.binding.spender.setBackgroundColor(Color.parseColor(colorList[(items[position].num + 8 * groupNum) % 20]))
+        holder.binding.spender.setBackgroundColor(Color.parseColor(colorList[(items[position].num + 6 * groupNum) % 20]))
         holder.binding.name.text=memberListList[groupNum][items[position].num].name
         holder.binding.amount.text=items[position].amount.toString()
         for(i in items[position].group){
             val btn = AppCompatButton(holder.binding.spendingMemberIcon.context)
-            btn.setBackgroundColor(Color.parseColor(colorList[(i.num + 8 * groupNum) % 20]))
+            btn.setBackgroundColor(Color.parseColor(colorList[(i.num + 6 * groupNum) % 20]))
             val param = LinearLayout.LayoutParams(changeDP(18),changeDP(18))
             param.setMargins(changeDP(5), 0, 0 ,0)
             param.gravity=Gravity.CENTER_VERTICAL
