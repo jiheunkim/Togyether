@@ -1,6 +1,7 @@
 package com.example.togyether
 
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,9 @@ import com.example.togyether.Model.User
 import com.example.togyether.databinding.ActivityJoinBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
@@ -24,7 +28,40 @@ class JoinActivity : AppCompatActivity() {
         binding = ActivityJoinBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        usernameFromFirebase()
         initLayout()
+    }
+
+    private fun usernameFromFirebase() {
+        val db = Firebase.database.getReference("togyether")
+        binding.nickChkBtn.setOnClickListener {
+            db.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    binding.nickConfirm.text = "사용가능한 닉네임입니다."
+                    binding.nickConfirm.setTextColor(ContextCompat.getColor(applicationContext!!, R.color.black))
+
+                    if (binding.username.text.toString().isEmpty()) {
+                        binding.nickConfirm.text = "닉네임을 입력해주세요."
+                        binding.nickConfirm.setTextColor(Color.parseColor("#DB0303"))
+                    }
+
+                    for (users in dataSnapshot.children) {
+                        val name = users.child("username").value.toString()
+                        Log.i("user", name)
+
+                        if (binding.username.text.toString() == name) {
+                            binding.nickConfirm.text = "중복된 닉네임입니다."
+                            binding.nickConfirm.setTextColor(Color.parseColor("#DB0303"))
+                            break
+                        }
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Error handling
+                }
+            })
+        }
     }
 
     private fun initLayout() {
