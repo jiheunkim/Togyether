@@ -1,3 +1,3 @@
 package com.example.togyether.Model
 
-class PriceModel(val date: String, val title: String, val category: String, val price: String)
+class PriceModel(var date: String, var title: String, var category: String, var price: String)

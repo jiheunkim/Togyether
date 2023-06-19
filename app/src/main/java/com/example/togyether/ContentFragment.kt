@@ -39,18 +39,64 @@ class ContentFragment : Fragment() {
     // PriceAdapter 인스턴스
     private val contentAdapter: ContentAdapter = ContentAdapter(priceList)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        usernameFromFirebase() // 사용자 이름 정보 가져오기
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentContentBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        usernameFromFirebase() // 사용자 이름 정보 가져오기
+        swipe()
+
+        selectedDate = LocalDate.now() // 현재 날짜
+        setMonth = selectedDate.month.toString()
+        setMonthView() // 월 이동
+
+        binding.lastMonth.setOnClickListener {
+            // 이전 달 버튼 이벤트
+            selectedDate = selectedDate.minusMonths(1)
+            setMonth = selectedDate.month.toString()
+            setMonthView()
+        }
+
+        binding.nextMonth.setOnClickListener {
+            // 다음 달 버튼 이벤트
+            selectedDate = selectedDate.plusMonths(1)
+            setMonth = selectedDate.month.toString()
+            setMonthView()
+        }
+    }
+
+    fun swipe() {
+        // RecyclerView에 가계부 내역 업데이트
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = ContentAdapter(priceList)
+
+            val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    // 이동 기능을 비활성화
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    // 왼쪽으로 스와이프된 항목을 삭제
+                    contentAdapter.deleteItem(viewHolder.adapterPosition)
+                }
+            }
+
+            val itemTouchHelper = ItemTouchHelper(simpleCallback)
+            itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        }
     }
 
     private fun usernameFromFirebase() {
@@ -132,28 +178,6 @@ class ContentFragment : Fragment() {
 
         // ValueEventListener를 addValueEventListener로 등록하여 데이터의 변화를 감지합니다.
         db.addValueEventListener(valueEventListener)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        selectedDate = LocalDate.now() // 현재 날짜
-        setMonth = selectedDate.month.toString()
-        setMonthView() // 월 이동
-
-        binding.lastMonth.setOnClickListener {
-            // 이전 달 버튼 이벤트
-            selectedDate = selectedDate.minusMonths(1)
-            setMonth = selectedDate.month.toString()
-            setMonthView()
-        }
-
-        binding.nextMonth.setOnClickListener {
-            // 다음 달 버튼 이벤트
-            selectedDate = selectedDate.plusMonths(1)
-            setMonth = selectedDate.month.toString()
-            setMonthView()
-        }
     }
 
     private fun setMonthView() {
