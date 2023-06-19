@@ -9,4 +9,25 @@
     <color name="main">#FF002060</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <array name="chartColors">
+        <item>#F44336</item> <!-- Red -->
+        <item>#E91E63</item> <!-- Pink -->
+        <item>#9C27B0</item> <!-- Purple -->
+        <item>#673AB7</item> <!-- Deep Purple -->
+        <item>#3F51B5</item> <!-- Indigo -->
+        <item>#2196F3</item> <!-- Blue -->
+        <item>#03A9F4</item> <!-- Light Blue -->
+        <item>#00BCD4</item> <!-- Cyan -->
+        <item>#009688</item> <!-- Teal -->
+        <item>#4CAF50</item> <!-- Green -->
+        <item>#8BC34A</item> <!-- Light Green -->
+        <item>#CDDC39</item> <!-- Lime -->
+        <item>#FFEB3B</item> <!-- Yellow -->
+        <item>#FFC107</item> <!-- Amber -->
+        <item>#FF9800</item> <!-- Orange -->
+        <item>#FF5722</item> <!-- Deep Orange -->
+        <item>#795548</item> <!-- Brown -->
+        <item>#9E9E9E</item> <!-- Gray -->
+        <item>#607D8B</item> <!-- Blue Gray -->
+    </array>
 </resources>
