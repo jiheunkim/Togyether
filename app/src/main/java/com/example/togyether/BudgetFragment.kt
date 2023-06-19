@@ -42,6 +42,7 @@ class BudgetFragment : Fragment() {
     private var income: Int = 0 // 수입
     lateinit var selectedDate: LocalDate
     private lateinit var expenseChart: BarChart
+    private lateinit var budgetChart: BarChart
 
     lateinit var myUid: String
     lateinit var setMonth: String
@@ -53,13 +54,12 @@ class BudgetFragment : Fragment() {
 
         // 그래프를 위한 BarChart 인스턴스 생성
         expenseChart = binding.expenseChart
+        budgetChart = binding.budgetChart
 
         updateExpenseRatio()
+        updateBudgetRatio()
 
         usernameFromFirebase()
-        calendarFromFirebase()
-
-
 
         selectedDate = LocalDate.now() // 현재 날짜
         setMonth = selectedDate.month.toString()
@@ -86,7 +86,7 @@ class BudgetFragment : Fragment() {
         }
 
         setMonthView()
-
+        calendarFromFirebase()
 
         return view
     }
@@ -101,23 +101,23 @@ class BudgetFragment : Fragment() {
     }
 
     private fun monthYearFromDate(date: LocalDate): String {
-        var formatter = DateTimeFormatter.ofPattern("MM월 yyyy")
+        val formatter = DateTimeFormatter.ofPattern("MM월 yyyy")
         return date.format(formatter)
     }
 
     private fun dayInMonthArray(date: LocalDate): ArrayList<LocalDate?> {
         // 날짜 생성
-        var dayList = ArrayList<LocalDate?>()
-        var yearMonth = YearMonth.from(date)
+        val dayList = ArrayList<LocalDate?>()
+        val yearMonth = YearMonth.from(date)
 
         // 해당 월 마지막 날짜 가져오기(28, 30, 31일)
-        var lastDay = yearMonth.lengthOfMonth()
+        val lastDay = yearMonth.lengthOfMonth()
 
         // 해당 월 첫 번째 날짜 가져오기(예: 5월 1일)
-        var firstDay = selectedDate.withDayOfMonth(1)
+        val firstDay = selectedDate.withDayOfMonth(1)
 
         // 첫 번째 날 요일 가져오기(월:1, 일:7)
-        var dayOfWeek = firstDay.dayOfWeek.value
+        val dayOfWeek = firstDay.dayOfWeek.value
 
         for(i in 1..41) {
             if(i <= dayOfWeek || i > (lastDay + dayOfWeek)) {
@@ -192,6 +192,11 @@ class BudgetFragment : Fragment() {
                                 binding.incomeMoney.text = numberFormat.format(income.toInt())
                                 binding.planMoney.text = numberFormat.format(budget.toInt())
                                 binding.sumEvery.text = numberFormat.format(sum.toInt())
+
+                                // Update expense and budget variables
+                                expenses = spent.toInt()
+                                this@BudgetFragment.budget = budget.toInt()
+                                updateExpenseRatio()
                             }
                         }
                     }
@@ -242,6 +247,7 @@ class BudgetFragment : Fragment() {
     // 예산 설정 처리
     private fun setBudget(budget: Int) {
         binding.planMoney.text = budget.toString()
+        this.budget = budget
         updateExpenseRatio()
 
         val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
@@ -277,25 +283,83 @@ class BudgetFragment : Fragment() {
         val dataSet = BarDataSet(entries, "Expense")
         dataSet.colors = if (budget >= (income - expenses)) {
             // 예산이 수입-지출보다 크거나 같을 경우 파란색으로 설정
-            listOf(Color.BLUE)
+            listOf(Color.BLUE, Color.RED)
         } else {
             // 예산이 수입-지출보다 작을 경우 빨간색으로 설정
-            listOf(Color.RED)
+            listOf(Color.RED, Color.BLUE)
         }
 
         // 그래프 데이터셋 리스트 생성
-        val dataSets: ArrayList<IBarDataSet> = ArrayList()
+        val dataSets = ArrayList<IBarDataSet>()
         dataSets.add(dataSet)
 
-        // 그래프 데이터 객체 생성
+        // 그래프 데이터 설정
         val data = BarData(dataSets)
 
-        // 그래프 설정
+        // 그래프 스타일 및 텍스트 설정
+        val description = Description()
+        description.text = ""
+        expenseChart.description = description
+        expenseChart.xAxis.labelCount = 2
+        expenseChart.xAxis.setDrawGridLines(false)
+        expenseChart.axisLeft.setDrawGridLines(false)
+        expenseChart.axisRight.setDrawGridLines(false)
+        expenseChart.axisRight.setDrawLabels(false)
+        expenseChart.legend.isEnabled = false
+        expenseChart.setDrawValueAboveBar(false)
+        expenseChart.setPinchZoom(false)
+        expenseChart.setDrawBarShadow(false)
         expenseChart.data = data
-        expenseChart.setFitBars(true)
-        expenseChart.description = Description().apply {
-            text = ""
-        }
+        expenseChart.axisLeft.axisMinimum = 0f // y축 최소값을 0으로 설정
+        expenseChart.axisLeft.axisMaximum = 500000f //  y축 최대값을 500000으로 설정
         expenseChart.invalidate()
+
+    }
+
+    // 예산 비율 업데이트
+    private fun updateBudgetRatio() {
+        calendarFromFirebase()
+        binding.planMoney.text = budget.toString()
+
+        // 그래프 데이터 생성
+        val entries = ArrayList<BarEntry>()
+        entries.add(BarEntry(0f, budget.toFloat()))
+        entries.add(BarEntry(1f, expenses.toFloat()))
+
+        // 그래프 데이터셋 설정
+        val dataSet = BarDataSet(entries, "Budget")
+        dataSet.colors = if (budget >= expenses) {
+            // 예산이 지출보다 크거나 같을 경우 파란색으로 설정
+            listOf(Color.BLUE, Color.RED)
+        } else {
+            // 예산이 지출보다 작을 경우 빨간색으로 설정
+            listOf(Color.RED, Color.BLUE)
+        }
+
+        // 그래프 데이터셋 리스트 생성
+        val dataSets = ArrayList<IBarDataSet>()
+        dataSets.add(dataSet)
+
+        // 그래프 데이터 설정
+        val data = BarData(dataSets)
+
+        // 그래프 스타일 및 텍스트 설정
+        val description = Description()
+        description.text = ""
+        budgetChart.description = description
+        budgetChart.xAxis.labelCount = 2
+        budgetChart.xAxis.setDrawGridLines(false)
+        budgetChart.axisLeft.setDrawGridLines(false)
+        budgetChart.axisRight.setDrawGridLines(false)
+        budgetChart.axisRight.setDrawLabels(false)
+        budgetChart.legend.isEnabled = false
+        budgetChart.setDrawValueAboveBar(false)
+        budgetChart.setPinchZoom(false)
+        budgetChart.setDrawBarShadow(false)
+        budgetChart.data = data
+        budgetChart.axisLeft.axisMinimum = 0f //  y축 최소값을 0으로 설정
+        budgetChart.axisLeft.axisMaximum = 500000f //y축 최대값을 500000으로 설정
+        budgetChart.invalidate()
+
     }
 }
