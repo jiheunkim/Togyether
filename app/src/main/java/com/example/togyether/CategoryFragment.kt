@@ -1,138 +1,216 @@
 package com.example.togyether
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import com.example.togyether.CategoryData
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.*
+import java.text.DecimalFormat
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
-import android.widget.Toast
+import android.util.Log
+import android.widget.ImageView
+import android.widget.TextView
 import com.example.togyether.databinding.FragmentCategoryBinding
+import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.utils.ColorTemplate
 
 class CategoryFragment : Fragment() {
-    lateinit var binding: FragmentCategoryBinding //
-    private val transactions = mutableListOf<CategoryData>()//
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = FragmentCategoryBinding.inflate(layoutInflater) //
-
-        val categories = arrayOf("음식", "쇼핑", "전자기기", "책", "교통비")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
-        binding.spinnerCategory.adapter = adapter
-
-        binding.buttonAdd.setOnClickListener {
-            addTransaction()
-        }
-    }
+    private lateinit var valueEventListener: ValueEventListener
+    private lateinit var database: DatabaseReference
+    private lateinit var categoryList: MutableList<CategoryItem>
+    private lateinit var category1Adapter: Category1Adapter
+    private lateinit var pieChart: PieChart
+    private lateinit var pieChartColors: List<Int> // 색상 배열 선언
+    private var _binding: FragmentCategoryBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_category, container, false)
+        _binding = FragmentCategoryBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    private fun addTransaction() {
-        val category = binding.spinnerCategory.selectedItem.toString()
-        val amountText = binding.editTextAmount.text.toString()
-        val amount = amountText.toIntOrNull()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        if (category.isNotEmpty() && amount != null) {
-            val categoryData = CategoryData(category, amount)
-            transactions.add(categoryData)
+        // 카테고리 목록 초기화
+        categoryList = mutableListOf()
+        category1Adapter = Category1Adapter(categoryList)
 
-            updateChart()
-            updateTransactionList()
-            clearInputFields()
-        } else {
-            Toast.makeText(requireContext(), "카테고리와 금액을 입력해주세요.", Toast.LENGTH_SHORT).show()
+        binding.recyclerView.adapter = category1Adapter
+
+        // RecyclerView 설정
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = category1Adapter
         }
-    }
-    private fun updateChart() {
-        val entries = mutableListOf<PieEntry>()
-        val colors = mutableListOf<Int>()
 
-        val categoryAmounts = mutableMapOf<String, Double>()
-        for (transaction in transactions) {
-            if (categoryAmounts.containsKey(transaction.category)) {
-                categoryAmounts[transaction.category] = categoryAmounts[transaction.category]!! + transaction.amount
-            } else {
-                categoryAmounts[transaction.category] = transaction.amount.toDouble()
+        // PieChart 설정
+        pieChart = view.findViewById(R.id.pie_chart)
+        pieChart.apply {
+            setUsePercentValues(true)
+            setEntryLabelTextSize(12f)
+            setEntryLabelColor(Color.BLACK)
+            description.isEnabled = false
+            isRotationEnabled = false
+            isHighlightPerTapEnabled = true
+        }
+
+        // Firebase 데이터베이스 초기화
+        database = FirebaseDatabase.getInstance().reference
+
+        // Firebase에서 데이터 가져오기
+        fetchDataFromFirebase()
+    }
+
+    private fun fetchDataFromFirebase() {
+        valueEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                Log.d("FirebaseData", dataSnapshot.toString()) // 데이터 확인용 로그
+
+                // 기존 데이터 초기화
+                categoryList.clear()
+
+                // 카테고리별 가격 합산
+                val categoryMap = mutableMapOf<String, Int>()
+                for (snapshot in dataSnapshot.children) {
+                    val category = snapshot.child("category").value.toString()
+                    val priceValue = snapshot.child("price").value
+                    if (priceValue != null) {
+                        val price = priceValue.toString().toInt()
+                        val existingPrice = categoryMap.getOrDefault(category, 0)
+                        categoryMap[category] = existingPrice + price
+                    }
+                }
+
+                // 합산된 가격으로 CategoryItem 생성
+                for ((category, price) in categoryMap) {
+                    val formattedPrice = DecimalFormat("#,###").format(price)
+                    val item = CategoryItem(category, formattedPrice)
+                    categoryList.add(item)
+                }
+
+                // RecyclerView 갱신
+                category1Adapter.notifyDataSetChanged()
+
+                // 차트에 데이터 추가
+                addChartEntries()
+
+
+                // Firebase 데이터베이스에서 데이터 읽기
+                database.addListenerForSingleValueEvent(valueEventListener)
+            }
+
+            private fun addChartEntries() {
+                val entries = mutableListOf<PieEntry>()
+                val totalAmount = categoryList.sumOf { it.amount.replace(",", "").toDoubleOrNull() ?: 0.0 }
+
+                for ((index, categoryItem) in categoryList.withIndex()) {
+                    val amount = categoryItem.amount.replace(",", "").toFloatOrNull()
+                    val percentage = if (totalAmount != 0.0&& amount != null) (amount / totalAmount).toFloat() else 0.0f
+                    val entry = PieEntry(percentage, categoryItem.category)
+                    entries.add(entry)
+                }
+
+                val dataSet = PieDataSet(entries, "")
+                dataSet.apply {
+                    setDrawIcons(false)
+                    sliceSpace = 2f
+                    selectionShift = 10f
+                    colors = pieChartColors // 배열로 변환하여 할당
+                }
+
+                val data = PieData(dataSet)
+                data.apply {
+                    setValueTextSize(12f)
+                    setValueTextColor(Color.BLACK)
+                }
+
+                pieChart.data = data
+                pieChart.invalidate()
+            }
+
+            // 랜덤 색상 반환 함수
+            private fun getRandomColor(index: Int): Int {
+                return pieChartColors[index % pieChartColors.size]
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Error handling
             }
         }
 
-        val distinctCategories = categoryAmounts.keys.toList()
-        for (i in distinctCategories.indices) {
-            val category = distinctCategories[i]
-            val amount = categoryAmounts[category] ?: 0.0
-            entries.add(PieEntry(amount.toFloat(), category))
+    }
 
-            // 각 카테고리에 원하는 색상을 설정
-            val color = when (category) {
-                "음식" -> Color.rgb(255, 0, 0) // 빨간색
-                "쇼핑" -> Color.rgb(0, 255, 0) // 초록색
-                "전자기기" -> Color.rgb(0, 0, 255) // 파란색
-                "책" -> Color.rgb(255, 255, 0) // 노란색
-                "교통비" -> Color.rgb(255, 0, 255) // 보라색
-                else -> Color.rgb(128, 128, 128) // 기본 색상 (회색)
+    // RecyclerView Adapter
+    inner class Category1Adapter(private val categoryList: List<CategoryItem>) :
+        RecyclerView.Adapter<Category1Adapter.ViewHolder>() {
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val categoryImageView: ImageView = itemView.findViewById(R.id.category_list)
+            val categoryNameTextView: TextView = itemView.findViewById(R.id.category_name)
+            val categoryAmountTextView: TextView = itemView.findViewById(R.id.category_amount)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.row_category, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val categoryItem = categoryList[position]
+
+            // 카테고리 정보 설정
+            holder.categoryImageView.setImageResource(
+                getDrawableResId(
+                    holder.itemView.context,
+                    categoryItem.category
+                )
+            )
+            holder.categoryNameTextView.text = categoryItem.category
+            holder.categoryAmountTextView.text = categoryItem.amount ?: ""
+        }
+
+        override fun getItemCount(): Int {
+            return categoryList.size
+        }
+
+        //data class CategoryItem(val category: String, val amount: String)
+
+        private fun getDrawableResId(context: Context, category: String): Int {
+            return when (category) {
+                "식당" -> R.drawable.category_food
+                "카페" -> R.drawable.category_cafe
+                "생필품" -> R.drawable.category_daily
+                "문화" -> R.drawable.category_activities
+                "주거" -> R.drawable.category_home
+                "금융" -> R.drawable.category_money
+                "쇼핑" -> R.drawable.category_shopping
+                "교통" -> R.drawable.category_traffic
+                "여행" -> R.drawable.category_travel
+                else -> R.drawable.category_food
             }
-            colors.add(color)
-        }
-
-        val dataSet = PieDataSet(entries, "카테고리")
-        dataSet.colors = colors
-        val pieData = PieData(dataSet)
-
-        binding.pieChart.data = pieData
-        binding.pieChart.invalidate()
-
-    }
-
-    private fun updateTransactionList() {
-        val categoryAmounts = mutableMapOf<String, Double>()
-
-        for (transaction in transactions) {
-            if (categoryAmounts.containsKey(transaction.category)) {
-                categoryAmounts[transaction.category] = categoryAmounts[transaction.category]!! + transaction.amount
-            } else {
-                categoryAmounts[transaction.category] = transaction.amount.toDouble()
-            }
-        }
-
-        val transactionsToShow = categoryAmounts.entries.map { CategoryData(it.key, it.value.toInt()) }.takeLast(5)
-        val categoryTextViews = arrayOf(
-            binding.textCategory1,
-            binding.textCategory2,
-            binding.textCategory3,
-            binding.textCategory4,
-            binding.textCategory5
-        )
-        val amountTextViews = arrayOf(
-            binding.textAmount1,
-            binding.textAmount2,
-            binding.textAmount3,
-            binding.textAmount4,
-            binding.textAmount5
-        )
-
-        for (i in transactionsToShow.indices) {
-            categoryTextViews[i].text = transactionsToShow[i].category
-            amountTextViews[i].text = transactionsToShow[i].amount.toString()
         }
     }
 
+    // 카테고리 아이템 데이터 클래스
+    data class CategoryItem(val category: String, val amount: String)
 
-    private fun clearInputFields() {
-        binding.editTextAmount.text.clear()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 색상 배열 초기화
+        pieChartColors = resources.getIntArray(R.array.chartColors).toList()
+
     }
-
 }
