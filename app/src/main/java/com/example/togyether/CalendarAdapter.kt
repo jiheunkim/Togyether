@@ -113,7 +113,6 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                 holder.dayText.setTextColor(Color.parseColor("#48D366"))
             }
 
-            // ValueEventListener 생성
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     // 데이터베이스의 값이 변경되었을 때 실행되는 로직을 여기에 작성
@@ -126,10 +125,30 @@ class CalendarAdapter(private val dayList: ArrayList<LocalDate?>):
                                     val total = users.child("calendar").child(iYear.toString())
                                         .child(iMonth.toString() + "m").child(iDay.toString() + "d")
                                         .child("total").value.toString()
+                                    val budget = users.child("calendar").child(iYear.toString())
+                                        .child(iMonth.toString() + "m").child("budget")
+                                        .value.toString()
 
                                     val numberFormat = NumberFormat.getInstance(Locale.getDefault())
                                     if (total.toInt() != 0) {
                                         holder.moneyInfo.text = numberFormat.format(total.toInt())
+
+                                        val imageView = holder.itemView.findViewById<ImageView>(R.id.smile)
+                                        val totalDay = if (iMonth.toString().toInt() == 1 or 3 or 5 or 7 or 8 or 10 or 12) {
+                                            31
+                                        } else if (iMonth.toString().toInt() == 2) {
+                                            28
+                                        } else {
+                                            30
+                                        }
+                                        val imageResourceId = if ((-total.toInt()) > (budget.toInt() / totalDay.toString().toInt())) {
+                                            R.drawable.smiley_sad_duotone
+                                        } else if (total.toDouble() == budget.toDouble() / totalDay.toString().toInt()) {
+                                            R.drawable.smiley_wink_duotone // 이미지2의 리소스 ID
+                                        } else {
+                                            R.drawable.smiley_duotone
+                                        }
+                                        imageView.setImageResource(imageResourceId)
                                     }
                                 }
                             }

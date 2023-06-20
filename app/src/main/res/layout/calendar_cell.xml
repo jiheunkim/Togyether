@@ -4,15 +4,30 @@
     android:layout_height="50dp"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/dayText"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_marginLeft="8dp"
-        android:text="1"
-        android:fontFamily="@font/notosans_medium"
-        android:textSize="12sp" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/dayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginLeft="8dp"
+            android:text="1"
+            android:fontFamily="@font/notosans_medium"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:id="@+id/smile"
+            android:layout_marginTop="1.7dp"
+            android:layout_marginLeft="1dp"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
