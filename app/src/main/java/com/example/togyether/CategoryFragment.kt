@@ -24,10 +24,13 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.values
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.util.ArrayList
 
 class CategoryFragment : Fragment() {
     private lateinit var database: DatabaseReference
-    private lateinit var categoryList: MutableList<CategoryItem>
+    private var categoryList: MutableList<CategoryItem> = mutableListOf()
     private lateinit var category1Adapter: Category1Adapter
     private lateinit var pieChart: PieChart
     private lateinit var pieChartColors: List<Int> // 색상 배열 선언
@@ -37,6 +40,8 @@ class CategoryFragment : Fragment() {
     lateinit var myUid: String
     lateinit var selectedDate: LocalDate
     lateinit var setMonth: String
+    lateinit var getMonth: String
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,8 +54,23 @@ class CategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 색상 배열 초기화
-        pieChartColors = resources.getIntArray(R.array.chartColors).toList()
+        selectedDate = LocalDate.now() // 현재 날짜
+        setMonth = selectedDate.month.toString()
+        setMonthView() // 월 이동
+
+        binding.lastMonth.setOnClickListener {
+            // 이전 달 버튼 이벤트
+            selectedDate = selectedDate.minusMonths(1)
+            setMonth = selectedDate.month.toString()
+            setMonthView()
+        }
+
+        binding.nextMonth.setOnClickListener {
+            // 다음 달 버튼 이벤트
+            selectedDate = selectedDate.plusMonths(1)
+            setMonth = selectedDate.month.toString()
+            setMonthView()
+        }
 
         // 카테고리 목록 초기화
         categoryList = mutableListOf()
@@ -64,7 +84,7 @@ class CategoryFragment : Fragment() {
             adapter = category1Adapter
 
             // Firebase에서 데이터 가져오기
-            fetchDataFromFirebase()
+            //fetchDataFromFirebase()
 
             category1Adapter.notifyDataSetChanged()
         }
@@ -79,14 +99,55 @@ class CategoryFragment : Fragment() {
             isRotationEnabled = false
             isHighlightPerTapEnabled = true
         }
+        // 색상 배열 초기화
+        pieChartColors = resources.getIntArray(R.array.chartColors).toList()
 
         // Firebase 데이터베이스 초기화
         database = FirebaseDatabase.getInstance().reference
     }
 
+    private fun setMonthView() {
+        binding.nowMonth.text = monthYearFromDate(selectedDate)
+
+        // 날짜 생성해서 리스트 담기
+        val dayList = dayInMonthArray(selectedDate)
+
+        fetchDataFromFirebase() // 월별 정보 가져오기
+    }
+
+    private fun monthYearFromDate(date: LocalDate): String {
+        val formatter = DateTimeFormatter.ofPattern("MM월 yyyy")
+        return date.format(formatter)
+    }
+
+    private fun dayInMonthArray(date: LocalDate): ArrayList<LocalDate?> {
+        // 날짜 생성
+        val dayList = ArrayList<LocalDate?>()
+        val yearMonth = YearMonth.from(date)
+
+        // 해당 월 마지막 날짜 가져오기(28, 30, 31일)
+        val lastDay = yearMonth.lengthOfMonth()
+
+        // 해당 월 첫 번째 날짜 가져오기(예: 5월 1일)
+        val firstDay = selectedDate.withDayOfMonth(1)
+
+        // 첫 번째 날 요일 가져오기(월:1, 일:7)
+        val dayOfWeek = firstDay.dayOfWeek.value
+
+        for(i in 1..41) {
+            if(i <= dayOfWeek || i > (lastDay + dayOfWeek)) {
+                dayList.add(null)
+            }else {
+                dayList.add(LocalDate.of(selectedDate.year, selectedDate.monthValue, i - dayOfWeek))
+            }
+        }
+
+        return dayList
+    }
+
     private fun fetchDataFromFirebase() {
         myUid = FirebaseAuth.getInstance().currentUser?.uid!!
-        selectedDate = LocalDate.now() // 현재 날짜
+        //selectedDate = LocalDate.now() // 현재 날짜
         setMonth = selectedDate.monthValue.toString()
 
         val db = Firebase.database.getReference("togyether")
@@ -129,9 +190,8 @@ class CategoryFragment : Fragment() {
                                 val priceDigits = itemPrice?.replace(Regex("[^0-9]"), "")
                                 -priceDigits?.toInt()!!
                             } else {
-                                itemPrice?.replace(Regex("[^0-9]"), "")?.toInt()
+                                null
                             }
-                            println(">price:$priceInt")
 
                             if (priceInt != null) {
                                 val category = itemCategory.toString()
@@ -149,11 +209,12 @@ class CategoryFragment : Fragment() {
                     categoryList.add(item)
                 }
 
+                // RecyclerView 갱신
+                category1Adapter.notifyDataSetChanged()
+
                 // 차트에 데이터 추가
                 addChartEntries()
 
-                // RecyclerView 갱신
-                category1Adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -165,6 +226,9 @@ class CategoryFragment : Fragment() {
     private fun addChartEntries() {
         val entries = mutableListOf<PieEntry>()
         val totalAmount = categoryList.sumOf { it.amount.replace(",", "").toDoubleOrNull() ?: 0.0 }
+
+        // 기존 차트 데이터 초기화
+        pieChart.data = null
 
         for ((index, categoryItem) in categoryList.withIndex()) {
             val amount = categoryItem.amount.replace(",", "").toFloatOrNull()
@@ -189,11 +253,6 @@ class CategoryFragment : Fragment() {
 
         pieChart.data = data
         pieChart.invalidate()
-    }
-
-    // 랜덤 색상 반환 함수
-    private fun getRandomColor(index: Int): Int {
-        return pieChartColors[index % pieChartColors.size]
     }
 
     // RecyclerView Adapter
@@ -224,6 +283,18 @@ class CategoryFragment : Fragment() {
             )
             holder.categoryNameTextView.text = categoryItem.category
             holder.categoryAmountTextView.text = categoryItem.amount ?: ""
+            // 지출 항목만 표시
+            if (categoryItem.category == "급여" || categoryItem.category == "용돈" ||
+                categoryItem.category == "금융수입" || categoryItem.category == "기타수입") {
+                holder.itemView.visibility = View.GONE
+                holder.itemView.layoutParams = RecyclerView.LayoutParams(0, 0)
+            } else {
+                holder.itemView.visibility = View.VISIBLE
+                holder.itemView.layoutParams = RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            }
         }
 
         override fun getItemCount(): Int {
