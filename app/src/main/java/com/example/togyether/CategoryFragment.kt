@@ -19,10 +19,13 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.values
+import com.google.firebase.ktx.Firebase
+import java.time.LocalDate
 
 class CategoryFragment : Fragment() {
-
-    private lateinit var valueEventListener: ValueEventListener
     private lateinit var database: DatabaseReference
     private lateinit var categoryList: MutableList<CategoryItem>
     private lateinit var category1Adapter: Category1Adapter
@@ -30,6 +33,10 @@ class CategoryFragment : Fragment() {
     private lateinit var pieChartColors: List<Int> // 색상 배열 선언
     private var _binding: FragmentCategoryBinding? = null
     private val binding get() = _binding!!
+
+    lateinit var myUid: String
+    lateinit var selectedDate: LocalDate
+    lateinit var setMonth: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +49,9 @@ class CategoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 색상 배열 초기화
+        pieChartColors = resources.getIntArray(R.array.chartColors).toList()
+
         // 카테고리 목록 초기화
         categoryList = mutableListOf()
         category1Adapter = Category1Adapter(categoryList)
@@ -52,6 +62,11 @@ class CategoryFragment : Fragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = category1Adapter
+
+            // Firebase에서 데이터 가져오기
+            fetchDataFromFirebase()
+
+            category1Adapter.notifyDataSetChanged()
         }
 
         // PieChart 설정
@@ -67,89 +82,118 @@ class CategoryFragment : Fragment() {
 
         // Firebase 데이터베이스 초기화
         database = FirebaseDatabase.getInstance().reference
-
-        // Firebase에서 데이터 가져오기
-        fetchDataFromFirebase()
     }
 
     private fun fetchDataFromFirebase() {
-        valueEventListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        myUid = FirebaseAuth.getInstance().currentUser?.uid!!
+        selectedDate = LocalDate.now() // 현재 날짜
+        setMonth = selectedDate.monthValue.toString()
 
-                Log.d("FirebaseData", dataSnapshot.toString()) // 데이터 확인용 로그
+        val db = Firebase.database.getReference("togyether")
+            .child(myUid)
+            .child("calendar")
+            .child("2023")
+            .child(setMonth + "m")
 
-                // 기존 데이터 초기화
-                categoryList.clear()
+        // 기존 데이터 초기화
+        categoryList.clear()
 
-                // 카테고리별 가격 합산
-                val categoryMap = mutableMapOf<String, Int>()
-                for (snapshot in dataSnapshot.children) {
-                    val category = snapshot.child("category").value.toString()
-                    val priceValue = snapshot.child("price").value
-                    if (priceValue != null) {
-                        val price = priceValue.toString().toInt()
-                        val existingPrice = categoryMap.getOrDefault(category, 0)
-                        categoryMap[category] = existingPrice + price
+        // 카테고리별 가격 합산
+        val categoryMap = mutableMapOf(
+            "식당" to 0,
+            "카페" to 0,
+            "생필품" to 0,
+            "문화" to 0,
+            "주거" to 0,
+            "금융" to 0,
+            "쇼핑" to 0,
+            "교통" to 0,
+            "여행" to 0,
+            "급여" to 0,
+            "용돈" to 0,
+            "금융수입" to 0,
+            "기타수입" to 0
+        )
+
+        // Firebase에서 데이터 가져오기
+        db.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (i in 1 until 31) {
+                    val dayDataSnapshot = snapshot.child(i.toString() + "d")
+                    if (dayDataSnapshot.exists()) {
+                        for (itemSnapshot in dayDataSnapshot.children) {
+                            val itemCategory =
+                                itemSnapshot.child("category").getValue(String::class.java)
+                            val itemPrice = itemSnapshot.child("price").getValue(String::class.java)
+                            val priceInt = if (itemPrice?.startsWith("-") == true) { // 가격 숫자 정보만 넣기
+                                val priceDigits = itemPrice?.replace(Regex("[^0-9]"), "")
+                                -priceDigits?.toInt()!!
+                            } else {
+                                itemPrice?.replace(Regex("[^0-9]"), "")?.toInt()
+                            }
+                            println(">price:$priceInt")
+
+                            if (priceInt != null) {
+                                val category = itemCategory.toString()
+                                categoryMap[category] = categoryMap[category]!! + priceInt
+                            }
+                        }
                     }
                 }
 
                 // 합산된 가격으로 CategoryItem 생성
                 for ((category, price) in categoryMap) {
+                    println("$category: $price")
                     val formattedPrice = DecimalFormat("#,###").format(price)
                     val item = CategoryItem(category, formattedPrice)
                     categoryList.add(item)
                 }
 
-                // RecyclerView 갱신
-                category1Adapter.notifyDataSetChanged()
-
                 // 차트에 데이터 추가
                 addChartEntries()
 
-
-                // Firebase 데이터베이스에서 데이터 읽기
-                database.addListenerForSingleValueEvent(valueEventListener)
+                // RecyclerView 갱신
+                category1Adapter.notifyDataSetChanged()
             }
 
-            private fun addChartEntries() {
-                val entries = mutableListOf<PieEntry>()
-                val totalAmount = categoryList.sumOf { it.amount.replace(",", "").toDoubleOrNull() ?: 0.0 }
-
-                for ((index, categoryItem) in categoryList.withIndex()) {
-                    val amount = categoryItem.amount.replace(",", "").toFloatOrNull()
-                    val percentage = if (totalAmount != 0.0&& amount != null) (amount / totalAmount).toFloat() else 0.0f
-                    val entry = PieEntry(percentage, categoryItem.category)
-                    entries.add(entry)
-                }
-
-                val dataSet = PieDataSet(entries, "")
-                dataSet.apply {
-                    setDrawIcons(false)
-                    sliceSpace = 2f
-                    selectionShift = 10f
-                    colors = pieChartColors // 배열로 변환하여 할당
-                }
-
-                val data = PieData(dataSet)
-                data.apply {
-                    setValueTextSize(12f)
-                    setValueTextColor(Color.BLACK)
-                }
-
-                pieChart.data = data
-                pieChart.invalidate()
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
             }
+        })
+    }
 
-            // 랜덤 색상 반환 함수
-            private fun getRandomColor(index: Int): Int {
-                return pieChartColors[index % pieChartColors.size]
-            }
+    private fun addChartEntries() {
+        val entries = mutableListOf<PieEntry>()
+        val totalAmount = categoryList.sumOf { it.amount.replace(",", "").toDoubleOrNull() ?: 0.0 }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Error handling
-            }
+        for ((index, categoryItem) in categoryList.withIndex()) {
+            val amount = categoryItem.amount.replace(",", "").toFloatOrNull()
+            val percentage = if (totalAmount != 0.0&& amount != null) (amount / totalAmount).toFloat() else 0.0f
+            val entry = PieEntry(percentage, categoryItem.category)
+            entries.add(entry)
         }
 
+        val dataSet = PieDataSet(entries, "")
+        dataSet.apply {
+            setDrawIcons(false)
+            sliceSpace = 2f
+            selectionShift = 10f
+            colors = pieChartColors // 배열로 변환하여 할당
+        }
+
+        val data = PieData(dataSet)
+        data.apply {
+            setValueTextSize(12f)
+            setValueTextColor(Color.BLACK)
+        }
+
+        pieChart.data = data
+        pieChart.invalidate()
+    }
+
+    // 랜덤 색상 반환 함수
+    private fun getRandomColor(index: Int): Int {
+        return pieChartColors[index % pieChartColors.size]
     }
 
     // RecyclerView Adapter
@@ -206,11 +250,4 @@ class CategoryFragment : Fragment() {
 
     // 카테고리 아이템 데이터 클래스
     data class CategoryItem(val category: String, val amount: String)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // 색상 배열 초기화
-        pieChartColors = resources.getIntArray(R.array.chartColors).toList()
-
-    }
 }
