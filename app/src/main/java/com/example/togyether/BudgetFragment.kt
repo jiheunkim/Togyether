@@ -34,8 +34,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 
 class BudgetFragment : Fragment() {
 
-    private var _binding: FragmentBudgetBinding? = null
-    private val binding get() = _binding!!
+    lateinit var binding: FragmentBudgetBinding
 
     private var budget: Int = 0 // 예산
     private var expenses: Int = 0 // 지출
@@ -49,8 +48,12 @@ class BudgetFragment : Fragment() {
     lateinit var getMonth: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentBudgetBinding.inflate(inflater, container, false)
-        val view = binding.root
+        binding = FragmentBudgetBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // 그래프를 위한 BarChart 인스턴스 생성
         expenseChart = binding.expenseChart
@@ -83,12 +86,8 @@ class BudgetFragment : Fragment() {
         binding.settings.setOnClickListener {
             // 설정 화면으로 이동하는 코드 추가
             showBudgetSettingDialog()
+            setMonthView()
         }
-
-        setMonthView()
-        calendarFromFirebase()
-
-        return view
     }
 
     private fun setMonthView() {
@@ -266,7 +265,6 @@ class BudgetFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 
     // 지출 비율 업데이트
