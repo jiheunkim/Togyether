@@ -53,6 +53,7 @@
                 android:lines="1"
                 android:paddingLeft="15dp"
                 android:textColorHint="#A3A3A3"
+                android:nextFocusDown="@+id/spending_time"
                 tools:ignore="TouchTargetSizeCheck" />
 
             <LinearLayout
@@ -85,6 +86,8 @@
                 android:lines="1"
                 android:paddingLeft="15dp"
                 android:textColorHint="#A3A3A3"
+                android:onClick="showDatePickerDialog"
+                android:nextFocusDown="@+id/spending_amount"
                 tools:ignore="TouchTargetSizeCheck" />
 
             <LinearLayout
