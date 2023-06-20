@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.utils.ColorTemplate
+import java.lang.Math.abs
 
 class BudgetFragment : Fragment() {
 
@@ -195,6 +196,7 @@ class BudgetFragment : Fragment() {
                                 // Update expense and budget variables
                                 expenses = spent.toInt()
                                 this@BudgetFragment.budget = budget.toInt()
+                                this@BudgetFragment.income = income.toInt()
                                 updateExpenseRatio()
                             }
                         }
@@ -275,7 +277,7 @@ class BudgetFragment : Fragment() {
         // 그래프 데이터 생성
         val entries = ArrayList<BarEntry>()
         entries.add(BarEntry(0f, budget.toFloat()))
-        entries.add(BarEntry(1f, Math.abs(income - expenses).toFloat()))
+        entries.add(BarEntry(1f, abs(expenses).toFloat())) 
 
         // 그래프 데이터셋 설정
         val dataSet = BarDataSet(entries, "Expense")
