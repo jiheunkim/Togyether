@@ -19,7 +19,6 @@ class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
     lateinit var binding: FragmentDutchpayGroupBinding
     lateinit var memberAdapter: memberAdapter
     lateinit var spendingAdapter: spendingAdapter
-    lateinit var transferAdapter: transferAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,19 +30,15 @@ class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
         with(view) {
             binding.recyclerView1.layoutManager = LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
             binding.recyclerView2.layoutManager = LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false)
-            binding.recyclerView3.layoutManager = LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false)
 
             binding.recyclerView1.addItemDecoration(DividerItemDecoration(getContext(),LinearLayoutManager.HORIZONTAL))
             binding.recyclerView2.addItemDecoration(DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL))
-            binding.recyclerView3.addItemDecoration(DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL))
 
             memberAdapter = memberAdapter(ArrayList(), groupNum)
             spendingAdapter = spendingAdapter(ArrayList(), groupNum, resources.displayMetrics)
-            transferAdapter = transferAdapter(ArrayList(), groupNum)
 
             binding.recyclerView1.adapter = memberAdapter
             binding.recyclerView2.adapter = spendingAdapter
-            binding.recyclerView3.adapter = transferAdapter
             Log.i("init", "init")
         }
 
@@ -77,18 +72,6 @@ class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
                 }
 
             }
-
-            transferAdapter.items.clear()
-            for(i in memberListList[groupNum]){
-                for(j in memberListList[groupNum]){
-                    if(i.transfer[j.num]>j.transfer[i.num]){
-                        transferAdapter.items.add(transferData(i.num, j.num, i.transfer[j.num]-j.transfer[i.num]))
-                        Log.i("transfer2", i.name + " " + j.name +" "+i.transfer[j.num].toString() + " " + j.transfer[i.num].toString())
-                        Log.i("transfer2", i.name + "->" + j.name +" "+ (i.transfer[j.num]-j.transfer[i.num]).toString())
-                    }
-                }
-            }
-            transferAdapter.notifyDataSetChanged()
 
             // 데이터베이스에 추가
             val myUid = FirebaseAuth.getInstance().currentUser?.uid!!
@@ -137,17 +120,6 @@ class DutchpayGroupFragment(var groupNum:Int) : Fragment() {
         spendingAdapter.items = spendingListList[groupNum]
         spendingAdapter.notifyDataSetChanged()
 
-        transferAdapter.items.clear()
-        for(i in memberListList[groupNum]){
-            for(j in memberListList[groupNum]){
-                if(i.transfer[j.num]>j.transfer[i.num]){
-                    transferAdapter.items.add(transferData(i.num, j.num, i.transfer[j.num]-j.transfer[i.num]))
-                    Log.i("transfer2", i.name + " " + j.name +" "+i.transfer[j.num].toString() + " " + j.transfer[i.num].toString())
-                    Log.i("transfer2", i.name + "->" + j.name +" "+ (i.transfer[j.num]-j.transfer[i.num]).toString())
-                }
-            }
-        }
-        transferAdapter.notifyDataSetChanged()
     }
 }
 
