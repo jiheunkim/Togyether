@@ -1,5 +1,6 @@
 package com.example.togyether
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -90,7 +91,17 @@ class ContentFragment : Fragment() {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     // 왼쪽으로 스와이프된 항목을 삭제
-                    contentAdapter.deleteItem(viewHolder.adapterPosition)
+                    val mDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog, null)
+                    val mBuilder = AlertDialog.Builder(requireContext())
+                        .setView(mDialogView)
+                        .setPositiveButton("OK") { _, _ ->
+                            contentAdapter.deleteItem(viewHolder.adapterPosition)
+                        }
+                        .setNegativeButton("Cancel") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+
+                    mBuilder.show()
                 }
             }
 
