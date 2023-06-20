@@ -8,8 +8,7 @@
     android:orientation="vertical"
     tools:context=".DutchpayTransferFragment">
 
-
-<TextView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:textColor="#000000"
@@ -24,12 +23,12 @@
         android:orientation="vertical"
         android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="140dp"/>
+        android:layout_height="160dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="15dp"
         android:orientation="vertical" >
 
         <androidx.appcompat.widget.AppCompatButton
@@ -37,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:layout_marginLeft="35dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="35dp"
             android:background="@drawable/btn_blue"
             android:text="완료"
