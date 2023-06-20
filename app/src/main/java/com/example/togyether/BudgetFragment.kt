@@ -60,9 +60,6 @@ class BudgetFragment : Fragment() {
         expenseChart = binding.expenseChart
         budgetChart = binding.budgetChart
 
-        updateExpenseRatio()
-        updateBudgetRatio()
-
         usernameFromFirebase()
 
         selectedDate = LocalDate.now() // 현재 날짜
@@ -89,6 +86,8 @@ class BudgetFragment : Fragment() {
             showBudgetSettingDialog()
             setMonthView()
         }
+        updateExpenseRatio()
+        updateBudgetRatio()
     }
 
     private fun setMonthView() {
@@ -98,6 +97,7 @@ class BudgetFragment : Fragment() {
         val dayList = dayInMonthArray(selectedDate)
 
         calendarFromFirebase() // 월별 정보 가져오기
+
     }
 
     private fun monthYearFromDate(date: LocalDate): String {
@@ -198,6 +198,7 @@ class BudgetFragment : Fragment() {
                                 this@BudgetFragment.budget = budget.toInt()
                                 this@BudgetFragment.income = income.toInt()
                                 updateExpenseRatio()
+                                updateBudgetRatio()
                             }
                         }
                     }
@@ -271,8 +272,9 @@ class BudgetFragment : Fragment() {
 
     // 지출 비율 업데이트
     private fun updateExpenseRatio() {
-        calendarFromFirebase()
+        //calendarFromFirebase()
         binding.incomeMoney.text = income.toString()
+        this.income = income
 
         // 그래프 데이터 생성
         val entries = ArrayList<BarEntry>()
@@ -318,7 +320,7 @@ class BudgetFragment : Fragment() {
 
     // 예산 비율 업데이트
     private fun updateBudgetRatio() {
-        calendarFromFirebase()
+        //calendarFromFirebase()
         binding.planMoney.text = budget.toString()
 
         // 그래프 데이터 생성
