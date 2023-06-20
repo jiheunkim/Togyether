@@ -202,11 +202,15 @@ class CategoryFragment : Fragment() {
                 }
 
                 // 합산된 가격으로 CategoryItem 생성
+
                 for ((category, price) in categoryMap) {
-                    println("$category: $price")
-                    val formattedPrice = DecimalFormat("#,###").format(price)
-                    val item = CategoryItem(category, formattedPrice)
-                    categoryList.add(item)
+                    if(price==0 || category == "급여" || category == "용돈" || category == "금융수입" || category == "기타수입") null
+                    else {
+                        println("$category: $price")
+                        val formattedPrice = DecimalFormat("#,###").format(price)
+                        val item = CategoryItem(category, formattedPrice)
+                        categoryList.add(item)
+                    }
                 }
 
                 // RecyclerView 갱신
