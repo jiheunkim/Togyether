@@ -58,7 +58,7 @@
 <br><br><br>
 
 ## 👩🏻‍💻 배운 점
+- [x] `Figma`로 각 화면별 디자인을 제작해보며 사용자에게 적합한 UI/UX 기능에 대해 생각했습니다.
 - [x] 백엔드 개발자 없이 개발을 진행해보면서, `Firebase`의 `Realtime Database`를 활용하는 방식에 대해 배웠습니다.
-- [x] `Kotlin`에서 calendar 생성 방식과 Recycler View를 활용하는 방식에 대해 고민해보았습니다.
-- [x] `Kotlin`에서 Fragment를 활용하여 Toolbar를 만들었고, 이 과정 속에서 화면 간 이동 방식에 대해 고민해보았습니다.
-<br><br><br>
+- [x] `Kotlin`에서 calendar 생성 방식과 Recycler View를 활용하는 방식에 대해 고민했습니다.
+- [x] `Kotlin`에서 Fragment를 활용하여 Toolbar를 만들었고, 이 과정 속에서 화면 간 이동 방식에 대해 고민했습니다.
